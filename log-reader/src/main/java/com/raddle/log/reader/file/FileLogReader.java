@@ -61,6 +61,11 @@ public class FileLogReader implements LogReader {
         }
     }
 
+    @Override
+    public void close() {
+
+    }
+
     private String[] readLines(long skip) {
         try {
             FileInputStream fis = new FileInputStream(logFile);

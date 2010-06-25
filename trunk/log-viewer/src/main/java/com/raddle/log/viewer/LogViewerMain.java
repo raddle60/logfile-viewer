@@ -19,7 +19,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import com.raddle.log.reader.LogReader;
 import com.raddle.log.reader.file.FileLogReader;
 import com.raddle.log.reader.net.NetLogReader;
 
@@ -173,10 +172,7 @@ public class LogViewerMain extends javax.swing.JFrame {
                         if (c instanceof LogViewerPanel) {
                             LogViewerPanel p = (LogViewerPanel) c;
                             p.stopTimer();
-                            LogReader r = p.getLogReader();
-                            if (r instanceof NetLogReader) {
-                                ((NetLogReader) r).close();
-                            }
+                            p.getLogReader().close();
                         }
                     }
                     System.exit(0); //关闭

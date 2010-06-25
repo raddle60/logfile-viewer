@@ -20,8 +20,6 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.plaf.basic.BasicButtonUI;
 
-import com.raddle.log.reader.LogReader;
-import com.raddle.log.reader.net.NetLogReader;
 import com.raddle.log.viewer.listener.LogChangedListener;
 
 public class TabTitlePanel extends JPanel implements LogChangedListener {
@@ -81,17 +79,14 @@ public class TabTitlePanel extends JPanel implements LogChangedListener {
                         if (c instanceof LogViewerPanel) {
                             LogViewerPanel p = (LogViewerPanel) c;
                             p.stopTimer();
-                            LogReader r = p.getLogReader();
-                            if (r instanceof NetLogReader) {
-                                ((NetLogReader) r).close();
-                            }
+                            p.getLogReader().close();
                         }
                         tabbedPane.remove(tabbedPane.indexOfTabComponent(TabTitlePanel.this));
                     }
                 }
             });
         }
-        
+
         //we don't want to update UI for this button
         public void updateUI() {
         }
@@ -114,7 +109,7 @@ public class TabTitlePanel extends JPanel implements LogChangedListener {
             g2.drawLine(getWidth() - delta - 1, delta, delta, getHeight() - delta - 1);
             g2.dispose();
         }
-        
+
     }
     private final static MouseListener buttonMouseListener = new MouseAdapter() {
         public void mouseEntered(MouseEvent e) {

@@ -9,9 +9,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -64,10 +62,7 @@ public class TabTitlePanel extends JPanel implements LogChangedListener {
             //No need to be focusable
             setFocusable(false);
             setBorder(BorderFactory.createEtchedBorder());
-            setBorderPainted(false);
             //Making nice rollover effect
-            //we use the same listener for all buttons
-            addMouseListener(buttonMouseListener);
             setRolloverEnabled(true);
             setText("关闭");
             //Close the proper tab by clicking the button
@@ -93,7 +88,7 @@ public class TabTitlePanel extends JPanel implements LogChangedListener {
 
         //paint the cross
         protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
+            //super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g.create();
             //shift the image for pressed buttons
             if (getModel().isPressed()) {
@@ -104,30 +99,13 @@ public class TabTitlePanel extends JPanel implements LogChangedListener {
             if (getModel().isRollover()) {
                 g2.setColor(Color.MAGENTA);
             }
-            int delta = 6;
+            int delta = 3;
             g2.drawLine(delta, delta, getWidth() - delta - 1, getHeight() - delta - 1);
             g2.drawLine(getWidth() - delta - 1, delta, delta, getHeight() - delta - 1);
             g2.dispose();
         }
 
     }
-    private final static MouseListener buttonMouseListener = new MouseAdapter() {
-        public void mouseEntered(MouseEvent e) {
-            Component component = e.getComponent();
-            if (component instanceof AbstractButton) {
-                AbstractButton button = (AbstractButton) component;
-                button.setBorderPainted(true);
-            }
-        }
-
-        public void mouseExited(MouseEvent e) {
-            Component component = e.getComponent();
-            if (component instanceof AbstractButton) {
-                AbstractButton button = (AbstractButton) component;
-                button.setBorderPainted(false);
-            }
-        }
-    };
 
     @Override
     public void logChanged() {

@@ -32,6 +32,33 @@ public class NetLogReader implements LogReader {
     }
 
     @Override
+	public long getFileBytes() {
+    	return (Long) doInSocket(new SocketCallback() {
+
+            @Override
+            public Object connected(Socket socket) throws Exception {
+                LogCommand cmd = new LogCommand();
+                cmd.setSessionId(id);
+                cmd.setFileId(fileId);
+                cmd.setCmdCode(LogCommand.CMD_FILE_LENGTH);
+                // 发送命令
+                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                out.writeObject(cmd);
+                //获得结果
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                LogResult result = (LogResult) in.readObject();
+                in.close();
+                out.close();
+				if (result.isSuccess()) {
+					return result.getAttr(LogResult.ATTR_LENGTH);
+				} else {
+					throw new RuntimeException("获得文件大小失败：" + result.getMessage());
+				}
+            }
+        });
+	}
+
+	@Override
     public String[] readAppendedLines() {
         return (String[]) doInSocket(new SocketCallback() {
 

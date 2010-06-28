@@ -8,6 +8,7 @@ public class LogResult implements Serializable {
 
     public final static String        ATTR_LINES       = "lines";
     public final static String        ATTR_FILE_IDS    = "fileIds";
+    public final static String        ATTR_LENGTH      = "length";
 
     private static final long         serialVersionUID = 1L;
     private boolean                   success;

@@ -37,6 +37,11 @@ public class FileLogReader implements LogReader {
     }
 
     @Override
+	public long getFileBytes() {
+		return logFile.length();
+	}
+
+	@Override
     public String[] readLastBytes(long bytes) {
         checkFile();
         long skip = 0;

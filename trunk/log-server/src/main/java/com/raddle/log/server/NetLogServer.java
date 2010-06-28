@@ -219,7 +219,10 @@ public class NetLogServer {
                                     os.write(buffer, 0, n);
                                 }
                                 logFileIn.close();
-                            } else {
+                            } else if (LogCommand.CMD_FILE_LENGTH.equals(command.getCmdCode())) {
+        						result.setAttr(LogResult.ATTR_LENGTH, logFile.getFile().length());
+        						result.setSuccess(true);
+        					} else {
                                 result.setSuccess(false);
                                 result.setMessage("unknow command [" + command.getCmdCode() + "]");
                                 System.out.println("unknow command [" + command.getCmdCode() + "]");
@@ -272,6 +275,10 @@ public class NetLogServer {
             BufferedReader reader = new BufferedReader(new InputStreamReader(in, "utf-8"));
             Properties p = new Properties();
             p.load(reader);
+            // 本机ip
+            if(remoteIP.equals("127.0.0.1")){
+            	return true;
+            }
             // 允许的ip
             if (isNotBlank(p.getProperty("allow"))) {
                 String[] ss = p.getProperty("allow").split(";");

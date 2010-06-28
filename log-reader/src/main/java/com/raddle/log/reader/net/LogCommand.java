@@ -17,7 +17,8 @@ public class LogCommand implements Serializable {
     public final static String        CMD_LIST_FILE_ID        = "listFileId";
     public final static String        CMD_CLOSE               = "close";
 	public final static String        CMD_SHUTDOWN            = "shutdown";
-    public final static String        ATTR_BYTES="bytes";
+	public final static String        CMD_FILE_LENGTH         = "fileLength";
+    public final static String        ATTR_BYTES              = "bytes";
 
     private static final long         serialVersionUID        = 1L;
     private String                    sessionId;

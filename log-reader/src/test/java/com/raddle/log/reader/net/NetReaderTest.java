@@ -19,6 +19,7 @@ public class NetReaderTest {
                 System.out.println(string);
             }
         }
+        System.out.println(reader.getFileBytes());
         reader.close();
     }
 

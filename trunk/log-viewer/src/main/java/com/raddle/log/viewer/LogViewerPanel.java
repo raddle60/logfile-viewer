@@ -121,6 +121,8 @@ public class LogViewerPanel extends javax.swing.JPanel {
                     public void actionPerformed(ActionEvent evt) {
                         DefaultComboBoxModel m = (DefaultComboBoxModel) logList.getModel();
                         m.removeAllElements();
+                        previousIndex = -1;
+                        ppreviousIndex = -1;
                     }
                 });
             }
@@ -293,7 +295,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
                                 }
                             }
 							if (index > ppreviousIndex && index <= previousIndex) {
-								c.setForeground(new Color(0x006666));
+								c.setForeground(new Color(0x74138C));
 							} else if (index > previousIndex) {
 								c.setForeground(new Color(0x0033CC));
 							}

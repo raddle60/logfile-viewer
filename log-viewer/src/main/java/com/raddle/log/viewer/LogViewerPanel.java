@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -53,6 +54,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
 
     private static final long serialVersionUID = 1L;
     private JScrollPane jScrollPane1;
+    private JLabel fileLengthLeb;
     private JLabel updateTimeLeb;
     private JButton clearBtn;
     private JLabel jLabel1;
@@ -106,6 +108,12 @@ public class LogViewerPanel extends javax.swing.JPanel {
             AnchorLayout thisLayout = new AnchorLayout();
             this.setLayout(thisLayout);
             setPreferredSize(new Dimension(800, 300));
+            {
+            	fileLengthLeb = new JLabel();
+            	this.add(fileLengthLeb, new AnchorConstraint(45, 0, 0, 634, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_ABS));
+            	fileLengthLeb.setText("\u6587\u4ef6\u5927\u5c0f");
+            	fileLengthLeb.setPreferredSize(new java.awt.Dimension(170, 23));
+            }
             {
                 updateTimeLeb = new JLabel();
                 this.add(updateTimeLeb, new AnchorConstraint(46, 0, 0, 460, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_ABS));
@@ -228,10 +236,9 @@ public class LogViewerPanel extends javax.swing.JPanel {
             }
             {
                 searchBtn = new JButton();
-                this.add(searchBtn, new AnchorConstraint(12, 496, 115, 186, AnchorConstraint.ANCHOR_ABS,
-                        AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_ABS));
+                this.add(searchBtn, new AnchorConstraint(12, 496, 115, 186, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_ABS));
                 searchBtn.setText("\u67e5\u627e");
-                searchBtn.setPreferredSize(new java.awt.Dimension(56, 22));
+                searchBtn.setPreferredSize(new java.awt.Dimension(63, 22));
                 searchBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent evt) {
                         searchKeyword();
@@ -373,6 +380,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
             }
         }
         updateTimeLeb.setText("最后刷新时间："+timeFormat.format(new Date()));
+        updateFileSize();
     }
 
     private void readLastBytes() {
@@ -402,12 +410,41 @@ public class LogViewerPanel extends javax.swing.JPanel {
                     logList.scrollRectToVisible(rect);
                 }
             }
+            updateFileSize();
         } catch (NumberFormatException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(LogViewerPanel.this, "错误的数字格式");
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(LogViewerPanel.this, "读取日志文件异常：" + e.getMessage());
         }
     }
 
+    private void updateFileSize(){
+		try {
+			long length = logReader.getFileBytes();
+			long k = 1024;
+			long m = 1024 * k;
+			long g = 1024 * m;
+			String lengthDesc = "";
+			DecimalFormat format = new DecimalFormat("0.###");
+			if (length < k) {
+				lengthDesc = String.valueOf(length) + "Byte";
+			} else if (length >= k && length < m) {
+				lengthDesc = format.format((double) length / k) + "KB";
+			} else if (length >= m && length < g) {
+				lengthDesc = format.format((double) length / m) + "MB";
+			} else if (length > g) {
+				lengthDesc = format.format((double) length / g) + "GB";
+			}
+			fileLengthLeb.setText("文件大小：" + lengthDesc);
+			fileLengthLeb.setToolTipText("");
+		} catch (Exception e) {
+			e.printStackTrace();
+			fileLengthLeb.setText("文件大小：error");
+			fileLengthLeb.setToolTipText(e.getMessage());
+		}
+    }
     public LogChangedListener getLogChangedListener() {
         return logChangedListener;
     }

@@ -73,7 +73,6 @@ public class LogViewerPanel extends javax.swing.JPanel {
     private int previousIndex = -1;
     private int ppreviousIndex = -1;
     private final static int MAX_LINES = 2000;
-    private static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
     private LogChangedListener logChangedListener;
 
     public LogViewerPanel(final LogReader logReader) {
@@ -379,7 +378,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
                 logChangedListener.logChanged();
             }
         }
-        updateTimeLeb.setText("最后刷新时间："+timeFormat.format(new Date()));
+        updateTime();
         updateFileSize();
     }
 
@@ -410,6 +409,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
                     logList.scrollRectToVisible(rect);
                 }
             }
+            updateTime();
             updateFileSize();
         } catch (NumberFormatException e) {
             e.printStackTrace();
@@ -419,6 +419,11 @@ public class LogViewerPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(LogViewerPanel.this, "读取日志文件异常：" + e.getMessage());
         }
     }
+    
+	private void updateTime() {
+		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+        updateTimeLeb.setText("最后刷新时间："+timeFormat.format(new Date()));
+	}
 
     private void updateFileSize(){
 		try {

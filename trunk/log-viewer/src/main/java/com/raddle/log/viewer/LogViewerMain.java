@@ -126,7 +126,7 @@ public class LogViewerMain extends javax.swing.JFrame {
                         openFileMenuItem.addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent evt) {
                                 NetReaderConfigDialog d = new NetReaderConfigDialog(LogViewerMain.this);
-                                d.setSize(500, 300);
+                                d.setSize(500, 320);
                                 d.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
                                 d.setModal(true);
                                 d.setLocationRelativeTo(LogViewerMain.this);

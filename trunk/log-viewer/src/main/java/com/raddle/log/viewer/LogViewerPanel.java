@@ -258,21 +258,25 @@ public class LogViewerPanel extends javax.swing.JPanel {
                 });
             }
             {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(LogViewerPanel.class
-                        .getResourceAsStream("/line-color.properties")));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(LogViewerPanel.class.getResourceAsStream("/line-color.properties")));
                 final Map<Pattern, Color> colorPattern = new LinkedHashMap();
                 String line = reader.readLine();
                 while (line != null) {
                     int index = line.indexOf('=');
-                    String[] rgbStr = line.substring(0, index).split(",");
-                    String value = line.substring(index + 1);
-                    String regxStr = value.substring(1, value.length() - 1);
-                    int[] rgb = new int[3];
-                    rgb[0] = Integer.parseInt(rgbStr[0]);
-                    rgb[1] = Integer.parseInt(rgbStr[1]);
-                    rgb[2] = Integer.parseInt(rgbStr[2]);
-                    colorPattern.put(Pattern.compile(regxStr, Pattern.CASE_INSENSITIVE), new Color(rgb[0], rgb[1],
-                            rgb[2]));
+                    String colorStr = line.substring(0, index);
+                    String pattern = line.substring(index + 1);
+                    String regxStr = pattern.substring(1, pattern.length() - 1);
+                    if(colorStr.indexOf(',') != -1){
+                    	String[] rgbStr = colorStr.split(",");
+                    	int[] rgb = new int[3];
+                    	rgb[0] = Integer.parseInt(rgbStr[0]);
+                    	rgb[1] = Integer.parseInt(rgbStr[1]);
+                    	rgb[2] = Integer.parseInt(rgbStr[2]);
+                    	colorPattern.put(Pattern.compile(regxStr, Pattern.CASE_INSENSITIVE), new Color(rgb[0], rgb[1], rgb[2]));
+                    }else if(colorStr.startsWith("0x")){
+                    	String rgbStr = colorStr.substring(2);
+                    	colorPattern.put(Pattern.compile(regxStr, Pattern.CASE_INSENSITIVE), new Color(Integer.parseInt(rgbStr,16)));
+                    }
                     line = reader.readLine();
                 }
 
@@ -419,7 +423,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(LogViewerPanel.this, "读取日志文件异常：" + e.getMessage());
         }
     }
-    
+
 	private void updateTime() {
 		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
         updateTimeLeb.setText("最后刷新时间："+timeFormat.format(new Date()));

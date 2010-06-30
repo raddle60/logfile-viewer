@@ -356,6 +356,8 @@ public class LogViewerPanel extends javax.swing.JPanel {
         m.addElement(s.trim());
         if (m.getSize() > MAX_LINES) {
             m.removeElementAt(0);
+	   		ppreviousIndex --;
+	        previousIndex --;
         }
     }
 

@@ -133,10 +133,12 @@ public class LogViewerMain extends javax.swing.JFrame {
                                 d.setVisible(true);
                                 if (d.getLogCodes() != null) {
                                     for (String logCode : d.getLogCodes()) {
-                                        LogViewerPanel jPanel1 = new LogViewerPanel(NetLogReader.connectServer(logCode, d
-                                                .getIp(), d.getPort()));
+                                        LogViewerPanel jPanel1 = new LogViewerPanel(NetLogReader.connectServer(logCode, d.getIp(), d.getPort()));
                                         jTabbedPane1.addTab(null, jPanel1);
                                         TabTitlePanel tabTitlePanel = new TabTitlePanel(logCode, jPanel1, jTabbedPane1);
+                                        tabTitlePanel.setIp(d.getIp());
+                                        tabTitlePanel.setPort(d.getPort());
+                                        tabTitlePanel.init();
                                         jPanel1.setLogChangedListener(tabTitlePanel);
                                         jTabbedPane1.setTabComponentAt(jTabbedPane1.indexOfComponent(jPanel1), tabTitlePanel);
                                         try {

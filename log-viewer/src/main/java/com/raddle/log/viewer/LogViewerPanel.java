@@ -307,9 +307,9 @@ public class LogViewerPanel extends javax.swing.JPanel {
                                 }
                             }
 							if (index > ppreviousIndex && index <= previousIndex) {
-								c.setForeground(new Color(0x74138C));
+								c.setForeground(new Color(0x993366));
 							} else if (index > previousIndex) {
-								c.setForeground(new Color(0x0033CC));
+								c.setForeground(new Color(0x0000FF));
 							}
                             return c;
                         }

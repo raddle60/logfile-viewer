@@ -74,6 +74,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
     private int ppreviousIndex = -1;
     private final static int MAX_LINES = 2000;
     private LogChangedListener logChangedListener;
+    private int refreshSecend = 5;
 
     public LogViewerPanel(final LogReader logReader) {
         this(logReader, null);
@@ -98,7 +99,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
                     addElement("自动滚动异常:" + e.getMessage());
                 }
             }
-        }, 1000, 5000);
+        }, 1000, refreshSecend * 1000);
     }
 
     @SuppressWarnings("unchecked")
@@ -117,6 +118,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
                 updateTimeLeb = new JLabel();
                 this.add(updateTimeLeb, new AnchorConstraint(46, 0, 0, 460, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_ABS));
                 updateTimeLeb.setPreferredSize(new java.awt.Dimension(174, 22));
+                updateTimeLeb.setToolTipText("刷新间隔："+refreshSecend+"秒");
             }
             {
                 clearBtn = new JButton();
@@ -327,6 +329,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
                     	if(size -1 > previousIndex){
                     		 ppreviousIndex = previousIndex;
                              previousIndex = size -1;
+                             logList.repaint();
                     	}
                     }
                 });
@@ -449,7 +452,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
 				lengthDesc = format.format((double) length / g) + "GB";
 			}
 			fileLengthLeb.setText("文件大小：" + lengthDesc);
-			fileLengthLeb.setToolTipText("");
+			fileLengthLeb.setToolTipText(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fileLengthLeb.setText("文件大小：error");

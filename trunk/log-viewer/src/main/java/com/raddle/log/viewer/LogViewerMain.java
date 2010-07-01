@@ -17,6 +17,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.raddle.log.reader.file.FileLogReader;
@@ -70,8 +72,17 @@ public class LogViewerMain extends javax.swing.JFrame {
     public LogViewerMain() {
         super();
         initGUI();
+        initEvent();
     }
+    private void initEvent() {
+    	jTabbedPane1.addChangeListener(new ChangeListener() {
 
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateWindowsTitle();
+			}
+		});
+    }
     private void initGUI() {
         try {
             setSize(800, 600);
@@ -115,6 +126,8 @@ public class LogViewerMain extends javax.swing.JFrame {
                                     TabTitlePanel tabTitlePanel = new TabTitlePanel(f.getSelectedFile().getName(), jPanel1, jTabbedPane1);
                                     jPanel1.setLogChangedListener(tabTitlePanel);
                                     jTabbedPane1.setTabComponentAt(jTabbedPane1.indexOfComponent(jPanel1), tabTitlePanel);
+									jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount() - 1);
+									updateWindowsTitle();;
                                 }
                             }
                         });
@@ -148,6 +161,8 @@ public class LogViewerMain extends javax.swing.JFrame {
                                             e.printStackTrace();
                                         }
                                     }
+                                    jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount() - 1);
+                                    updateWindowsTitle();
                                 }
                                 d.dispose();
                             }
@@ -185,5 +200,21 @@ public class LogViewerMain extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
+
+	private void updateWindowsTitle() {
+		if(jTabbedPane1.getSelectedIndex() != -1){
+			Component c = jTabbedPane1.getTabComponentAt(jTabbedPane1.getSelectedIndex());
+		    if (c instanceof TabTitlePanel) {
+		    	TabTitlePanel p = (TabTitlePanel) c;
+		    	if(p.getIp() != null){
+					LogViewerMain.this.setTitle(p.getTabTitle() + " - " + p.getIp() + ":" + p.getPort());
+		    	}else{
+		    		LogViewerMain.this.setTitle(p.getTabTitle());
+		    	}
+		    }
+		}else{
+			LogViewerMain.this.setTitle("日志查看");
+		}
+	}
 
 }

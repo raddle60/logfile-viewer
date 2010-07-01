@@ -28,11 +28,13 @@ public class TabTitlePanel extends JPanel implements LogChangedListener {
     private final LogViewerPanel pane;
     private String ip;
     private int port;
+    private String tabTitle;
 
-    public TabTitlePanel(String s, LogViewerPanel pane,JTabbedPane tabbedPane) {
+	public TabTitlePanel(String s, LogViewerPanel pane,JTabbedPane tabbedPane) {
         super(new FlowLayout(FlowLayout.LEFT, 0, 0));
         this.tabbedPane = tabbedPane;
         this.pane = pane;
+        this.tabTitle = s;
         titleLebel = new JLabel(s);
         closebutton = new CloseButton();
         add(titleLebel);
@@ -49,11 +51,9 @@ public class TabTitlePanel extends JPanel implements LogChangedListener {
     }
 
     public void init(){
-		if (ip != null) {
-			titleLebel.setToolTipText(ip + ":" + port);
-		}
+
     }
-    
+
     private class CloseButton extends JButton {
         private static final long serialVersionUID = 1L;
 
@@ -134,5 +134,9 @@ public class TabTitlePanel extends JPanel implements LogChangedListener {
 
 	public void setPort(int port) {
 		this.port = port;
+	}
+
+    public String getTabTitle() {
+		return tabTitle;
 	}
 }

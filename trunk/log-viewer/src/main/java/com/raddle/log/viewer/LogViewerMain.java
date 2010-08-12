@@ -47,6 +47,7 @@ public class LogViewerMain extends javax.swing.JFrame {
 
     private static final long serialVersionUID = 1L;
     private JMenuItem helpMenuItem;
+    private JMenuItem closeAllMenuItem;
     private JMenu jMenu5;
     private JTabbedPane jTabbedPane1;
     private JMenuItem openFileMenuItem;
@@ -168,6 +169,16 @@ public class LogViewerMain extends javax.swing.JFrame {
                             }
                         });
                     }
+                    {
+                    	closeAllMenuItem = new JMenuItem();
+                    	jMenu3.add(closeAllMenuItem);
+                    	closeAllMenuItem.setText("\u5168\u90e8\u5173\u95ed");
+                    	closeAllMenuItem.addActionListener(new ActionListener() {
+                    		public void actionPerformed(ActionEvent evt) {
+                    			closeAllTab();
+                    		}
+                    	});
+                    }
                 }
                 {
                     jMenu5 = new JMenu();
@@ -182,16 +193,7 @@ public class LogViewerMain extends javax.swing.JFrame {
             }
             this.addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {
-                    // 关闭tab,关闭网络会话
-                    int count = jTabbedPane1.getTabCount();
-                    for (int i = 0; i < count; i++) {
-                        Component c = jTabbedPane1.getComponentAt(i);
-                        if (c instanceof LogViewerPanel) {
-                            LogViewerPanel p = (LogViewerPanel) c;
-                            p.stopTimer();
-                            p.getLogReader().close();
-                        }
-                    }
+                    closeAllTab();
                     System.exit(0); //关闭
                 }
             });
@@ -214,6 +216,19 @@ public class LogViewerMain extends javax.swing.JFrame {
 		    }
 		}else{
 			LogViewerMain.this.setTitle("日志查看");
+		}
+	}
+
+	private void closeAllTab() {
+		// 关闭tab,关闭网络会话
+		int count = jTabbedPane1.getTabCount();
+		for (int i = 0; i < count; i++) {
+		    Component c = jTabbedPane1.getComponentAt(i);
+		    if (c instanceof LogViewerPanel) {
+		        LogViewerPanel p = (LogViewerPanel) c;
+		        p.stopTimer();
+		        p.getLogReader().close();
+		    }
 		}
 	}
 

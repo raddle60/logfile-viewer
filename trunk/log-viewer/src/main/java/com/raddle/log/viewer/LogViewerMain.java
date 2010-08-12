@@ -47,6 +47,9 @@ public class LogViewerMain extends javax.swing.JFrame {
 
     private static final long serialVersionUID = 1L;
     private JMenuItem helpMenuItem;
+    private JMenuItem openSavedTabMenuItem;
+    private JMenuItem savnOpenTabMenuItem;
+    private JMenu jMenu1;
     private JMenuItem closeAllMenuItem;
     private JMenu jMenu5;
     private JTabbedPane jTabbedPane1;
@@ -173,16 +176,44 @@ public class LogViewerMain extends javax.swing.JFrame {
                             }
                         });
                     }
-                    {
-                    	closeAllMenuItem = new JMenuItem();
-                    	jMenu3.add(closeAllMenuItem);
-                    	closeAllMenuItem.setText("\u5168\u90e8\u5173\u95ed");
-                    	closeAllMenuItem.addActionListener(new ActionListener() {
-                    		public void actionPerformed(ActionEvent evt) {
-                    			closeAllTab();
-                    		}
-                    	});
-                    }
+                }
+                {
+                	jMenu1 = new JMenu();
+                	jMenuBar1.add(jMenu1);
+                	jMenu1.setText("\u6807\u7b7e");
+                	{
+                		savnOpenTabMenuItem = new JMenuItem();
+                		jMenu1.add(savnOpenTabMenuItem);
+                		savnOpenTabMenuItem.setText("\u4fdd\u5b58\u6253\u5f00\u7684\u6807\u7b7e");
+                		savnOpenTabMenuItem.addActionListener(new ActionListener() {
+                			public void actionPerformed(ActionEvent evt) {
+                				System.out.println("savnOpenTabMenuItem.actionPerformed, event="+evt);
+                				//TODO add your code for savnOpenTabMenuItem.actionPerformed
+                			}
+                		});
+                	}
+                	{
+                		openSavedTabMenuItem = new JMenuItem();
+                		jMenu1.add(openSavedTabMenuItem);
+                		openSavedTabMenuItem.setText("\u6253\u5f00\u4fdd\u5b58\u7684\u6807\u7b7e");
+                		openSavedTabMenuItem.addActionListener(new ActionListener() {
+                			public void actionPerformed(ActionEvent evt) {
+                				System.out.println("openSavedTabMenuItem.actionPerformed, event="+evt);
+                				//TODO add your code for openSavedTabMenuItem.actionPerformed
+                			}
+                		});
+                	}
+                	{
+                		closeAllMenuItem = new JMenuItem();
+                		jMenu1.add(closeAllMenuItem);
+                		closeAllMenuItem.setText("\u5168\u90e8\u5173\u95ed");
+                		closeAllMenuItem.setBounds(-67, 73, 90, 23);
+                		closeAllMenuItem.addActionListener(new ActionListener() {
+                			public void actionPerformed(ActionEvent evt) {
+                				closeAllTab();
+                			}
+                		});
+                	}
                 }
                 {
                     jMenu5 = new JMenu();

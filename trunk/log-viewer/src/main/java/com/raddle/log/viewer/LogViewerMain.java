@@ -54,6 +54,7 @@ public class LogViewerMain extends javax.swing.JFrame {
     private JMenu jMenu1;
     private JMenuItem closeAllMenuItem;
     private JMenu jMenu5;
+    private JMenuItem manageTabMenuItem;
     private JTabbedPane jTabbedPane1;
     private JMenuItem openFileMenuItem;
     private JMenuItem newFileMenuItem;
@@ -196,6 +197,21 @@ public class LogViewerMain extends javax.swing.JFrame {
 										}
 									}
                                 }
+                                d.dispose();
+                			}
+                		});
+                	}
+                	{
+                		manageTabMenuItem = new JMenuItem();
+                		jMenu1.add(manageTabMenuItem);
+                		manageTabMenuItem.setText("\u7ba1\u7406\u6807\u7b7e");
+                		manageTabMenuItem.addActionListener(new ActionListener() {
+                			public void actionPerformed(ActionEvent evt) {
+                				OpenSavedTabDialog d = new OpenSavedTabDialog(LogViewerMain.this);
+                				d.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+                                d.setModal(true);
+                                d.setLocationRelativeTo(LogViewerMain.this);
+                                d.setVisible(true);
                                 d.dispose();
                 			}
                 		});

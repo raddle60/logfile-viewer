@@ -75,6 +75,11 @@ public class LogViewerPanel extends javax.swing.JPanel {
     private final static int MAX_LINES = 2000;
     private LogChangedListener logChangedListener;
     private int refreshSecend = 5;
+    //////
+    private File logFile;
+    private String logFileEncoding;
+    private String logServerIp;
+    private int logServerPort;
 
     public LogViewerPanel(final LogReader logReader) {
         this(logReader, null);
@@ -470,4 +475,36 @@ public class LogViewerPanel extends javax.swing.JPanel {
     public JList getLogList() {
         return logList;
     }
+
+	public File getLogFile() {
+		return logFile;
+	}
+
+	public void setLogFile(File logFile) {
+		this.logFile = logFile;
+	}
+
+	public String getLogServerIp() {
+		return logServerIp;
+	}
+
+	public void setLogServerIp(String logServerIp) {
+		this.logServerIp = logServerIp;
+	}
+
+	public int getLogServerPort() {
+		return logServerPort;
+	}
+
+	public void setLogServerPort(int logServerPort) {
+		this.logServerPort = logServerPort;
+	}
+
+	public String getLogFileEncoding() {
+		return logFileEncoding;
+	}
+
+	public void setLogFileEncoding(String logFileEncoding) {
+		this.logFileEncoding = logFileEncoding;
+	}
 }

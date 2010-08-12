@@ -80,6 +80,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
     private String logFileEncoding;
     private String logServerIp;
     private int logServerPort;
+    private String logCode;
 
     public LogViewerPanel(final LogReader logReader) {
         this(logReader, null);
@@ -506,5 +507,13 @@ public class LogViewerPanel extends javax.swing.JPanel {
 
 	public void setLogFileEncoding(String logFileEncoding) {
 		this.logFileEncoding = logFileEncoding;
+	}
+
+	public String getLogCode() {
+		return logCode;
+	}
+
+	public void setLogCode(String logCode) {
+		this.logCode = logCode;
 	}
 }

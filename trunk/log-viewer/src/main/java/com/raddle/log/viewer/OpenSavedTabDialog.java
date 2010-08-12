@@ -1,13 +1,19 @@
 package com.raddle.log.viewer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
+
+import com.raddle.log.viewer.utils.LogConfigUtils;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -28,6 +34,8 @@ public class OpenSavedTabDialog extends javax.swing.JDialog {
 	private JButton deleteBtn;
 	private JList groupJList;
 	private JButton openBtn;
+	private boolean open = false;
+	private List<String> tabs;
 
 	/**
 	* Auto-generated main method to display this JDialog
@@ -36,6 +44,7 @@ public class OpenSavedTabDialog extends javax.swing.JDialog {
 	public OpenSavedTabDialog(JFrame frame) {
 		super(frame);
 		initGUI();
+		reloadGroups();
 	}
 	
 	private void initGUI() {
@@ -62,8 +71,17 @@ public class OpenSavedTabDialog extends javax.swing.JDialog {
 					openBtn.setBounds(467, 12, 114, 25);
 					openBtn.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
-							System.out.println("openBtn.actionPerformed, event="+evt);
-							//TODO add your code for openBtn.actionPerformed
+							if (groupJList.getSelectedValue() != null) {
+								Object[] selecteds = groupJList.getSelectedValues();
+								tabs = new ArrayList<String>();
+								for (int i = 0; i < selecteds.length; i++) {
+									tabs.addAll(LogConfigUtils.getGroupTabs(selecteds[i].toString()));
+								}
+								open = true;
+								OpenSavedTabDialog.this.setVisible(false);
+                            } else {
+                                JOptionPane.showMessageDialog(OpenSavedTabDialog.this, "请选择要打开的标签组");
+                            }
 						}
 					});
 				}
@@ -74,8 +92,18 @@ public class OpenSavedTabDialog extends javax.swing.JDialog {
 					deleteBtn.setBounds(467, 69, 114, 25);
 					deleteBtn.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
-							System.out.println("deleteBtn.actionPerformed, event="+evt);
-							//TODO add your code for deleteBtn.actionPerformed
+							if (groupJList.getSelectedValue() != null) {
+								int ret = JOptionPane.showConfirmDialog(OpenSavedTabDialog.this, "确定要删除选中的标签组吗");
+								if(ret == JOptionPane.YES_OPTION){
+									Object[] selecteds = groupJList.getSelectedValues();
+									for (int i = 0; i < selecteds.length; i++) {
+										LogConfigUtils.removeTabGroup(selecteds[i].toString());
+									}
+									reloadGroups();
+								}
+                            } else {
+                                JOptionPane.showMessageDialog(OpenSavedTabDialog.this, "请选择要删除的标签组");
+                            }
 						}
 					});
 				}
@@ -84,6 +112,30 @@ public class OpenSavedTabDialog extends javax.swing.JDialog {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void reloadGroups(){
+		DefaultComboBoxModel model = (DefaultComboBoxModel) groupJList.getModel();
+		model.removeAllElements();
+		for (String groupName : LogConfigUtils.getTabGroup()) {
+			model.addElement(groupName);
+		}
+	}
+
+	public boolean isOpen() {
+		return open;
+	}
+
+	public void setOpen(boolean open) {
+		this.open = open;
+	}
+
+	public List<String> getTabs() {
+		return tabs;
+	}
+
+	public void setTabs(List<String> tabs) {
+		this.tabs = tabs;
 	}
 
 }

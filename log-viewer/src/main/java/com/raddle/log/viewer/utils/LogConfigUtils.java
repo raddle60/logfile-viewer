@@ -63,6 +63,7 @@ public class LogConfigUtils {
 					}else{
 						sb.append("net:").append(p.getLogServerIp());
 						sb.append(":").append(p.getLogServerPort());
+						sb.append(":").append(p.getLogCode());
 					}
 				}
 			}
@@ -93,6 +94,7 @@ public class LogConfigUtils {
 	
 	public static void removeTabGroup(String groupName){
 		config.remove(TAB_GROUP_PREFIX + groupName);
+		saveConfig();
 	}
 	
 	private static void saveConfig(){

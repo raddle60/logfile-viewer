@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 
 import javax.swing.JFileChooser;
@@ -23,6 +24,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.raddle.log.reader.file.FileLogReader;
 import com.raddle.log.reader.net.NetLogReader;
+import com.raddle.log.viewer.utils.LogConfigUtils;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -117,23 +119,9 @@ public class LogViewerMain extends javax.swing.JFrame {
                                 if (result == JFileChooser.APPROVE_OPTION) {
                                     String encoding = JOptionPane.showInputDialog("请输入文件编码格式", System
                                             .getProperty("file.encoding"));
-                                    // 测试编码格式
-                                    try {
-                                        "abc".getBytes(encoding);
-                                    } catch (UnsupportedEncodingException e) {
-                                        JOptionPane.showMessageDialog(LogViewerMain.this, "不支持的编码格式[" + encoding + "]");
-                                        return;
-                                    }
-                                    LogViewerPanel jPanel1 = new LogViewerPanel(
-                                            new FileLogReader(f.getSelectedFile(), encoding));
-                                    jPanel1.setLogFile(f.getSelectedFile());
-                                    jPanel1.setLogFileEncoding(encoding);
-                                    jTabbedPane1.addTab(null, jPanel1);
-                                    TabTitlePanel tabTitlePanel = new TabTitlePanel(f.getSelectedFile().getName(), jPanel1, jTabbedPane1);
-                                    jPanel1.setLogChangedListener(tabTitlePanel);
-                                    jTabbedPane1.setTabComponentAt(jTabbedPane1.indexOfComponent(jPanel1), tabTitlePanel);
+                                    addFileLogTab(f.getSelectedFile(), encoding);
 									jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount() - 1);
-									updateWindowsTitle();;
+									updateWindowsTitle();
                                 }
                             }
                         });
@@ -152,22 +140,7 @@ public class LogViewerMain extends javax.swing.JFrame {
                                 d.setVisible(true);
                                 if (d.getLogCodes() != null) {
                                     for (String logCode : d.getLogCodes()) {
-                                        LogViewerPanel jPanel1 = new LogViewerPanel(NetLogReader.connectServer(logCode, d.getIp(), d.getPort()));
-                                        jPanel1.setLogServerIp(d.getIp());
-                                        jPanel1.setLogServerPort(d.getPort());
-                                        jTabbedPane1.addTab(null, jPanel1);
-                                        TabTitlePanel tabTitlePanel = new TabTitlePanel(logCode, jPanel1, jTabbedPane1);
-                                        tabTitlePanel.setIp(d.getIp());
-                                        tabTitlePanel.setPort(d.getPort());
-                                        tabTitlePanel.init();
-                                        jPanel1.setLogChangedListener(tabTitlePanel);
-                                        jTabbedPane1.setTabComponentAt(jTabbedPane1.indexOfComponent(jPanel1), tabTitlePanel);
-                                        try {
-                                            // 延迟一下
-                                            Thread.sleep(200);
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
+                                        addNetLogTab(logCode, d.getIp(), d.getPort());
                                     }
                                     jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount() - 1);
                                     updateWindowsTitle();
@@ -187,8 +160,10 @@ public class LogViewerMain extends javax.swing.JFrame {
                 		savnOpenTabMenuItem.setText("\u4fdd\u5b58\u6253\u5f00\u7684\u6807\u7b7e");
                 		savnOpenTabMenuItem.addActionListener(new ActionListener() {
                 			public void actionPerformed(ActionEvent evt) {
-                				System.out.println("savnOpenTabMenuItem.actionPerformed, event="+evt);
-                				//TODO add your code for savnOpenTabMenuItem.actionPerformed
+                				String value = JOptionPane.showInputDialog("请输入保存的标签组名称");
+                				if(value != null && value.trim().length() > 0){
+                					LogConfigUtils.saveTabGroup(value.trim(), jTabbedPane1);
+                				}
                 			}
                 		});
                 	}
@@ -198,8 +173,30 @@ public class LogViewerMain extends javax.swing.JFrame {
                 		openSavedTabMenuItem.setText("\u6253\u5f00\u4fdd\u5b58\u7684\u6807\u7b7e");
                 		openSavedTabMenuItem.addActionListener(new ActionListener() {
                 			public void actionPerformed(ActionEvent evt) {
-                				System.out.println("openSavedTabMenuItem.actionPerformed, event="+evt);
-                				//TODO add your code for openSavedTabMenuItem.actionPerformed
+                				OpenSavedTabDialog d = new OpenSavedTabDialog(LogViewerMain.this);
+                				d.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+                                d.setModal(true);
+                                d.setLocationRelativeTo(LogViewerMain.this);
+                                d.setVisible(true);
+                                if(d.isOpen()){
+                                	for (String logTab : d.getTabs()) {
+										if(logTab.startsWith("file:")){
+											String value = logTab.substring("file:".length());
+											String[] ss = value.split(":");
+											addFileLogTab(new File(ss[0]), ss[1]);
+										}
+										if(logTab.startsWith("net:")){
+											String value = logTab.substring("net:".length());
+											String[] ss = value.split(":");
+											String logCode = ss[2];
+											if(ss.length == 4){
+												logCode = logCode + ":" + ss[3];
+											}
+											addNetLogTab(logCode, ss[0], Integer.parseInt(ss[1]));
+										}
+									}
+                                }
+                                d.dispose();
                 			}
                 		});
                 	}
@@ -264,6 +261,68 @@ public class LogViewerMain extends javax.swing.JFrame {
 		        p.stopTimer();
 		        p.getLogReader().close();
 		    }
+		}
+		while(count > 0){
+			jTabbedPane1.remove(count - 1);
+			count = jTabbedPane1.getTabCount();
+		}
+	}
+
+	private void addNetLogTab(String logCode, String ip, int port) {
+		try {
+			LogViewerPanel jPanel1 = new LogViewerPanel(NetLogReader.connectServer(logCode, ip, port));
+			jPanel1.setLogServerIp(ip);
+			jPanel1.setLogServerPort(port);
+			jPanel1.setLogCode(logCode);
+			jTabbedPane1.addTab(null, jPanel1);
+			TabTitlePanel tabTitlePanel = new TabTitlePanel(logCode, jPanel1, jTabbedPane1);
+			tabTitlePanel.setIp(ip);
+			tabTitlePanel.setPort(port);
+			tabTitlePanel.init();
+			jPanel1.setLogChangedListener(tabTitlePanel);
+			jTabbedPane1.setTabComponentAt(jTabbedPane1.indexOfComponent(jPanel1), tabTitlePanel);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			JOptionPane.showMessageDialog(LogViewerMain.this, "打开网络日志文件[" + logCode + ":" + ip + ":" + port + "]失败");
+		}
+		try {
+		    // 延迟一下
+		    Thread.sleep(200);
+		} catch (InterruptedException e) {
+		    e.printStackTrace();
+		}
+	}
+
+	private void addFileLogTab(File file, String encoding) {
+		if(!file.exists()){
+			JOptionPane.showMessageDialog(LogViewerMain.this, "文件[" + file.getAbsolutePath() + "]不存在");
+		    return;
+		}
+		// 测试编码格式
+		try {
+		    "abc".getBytes(encoding);
+		} catch (UnsupportedEncodingException e) {
+		    JOptionPane.showMessageDialog(LogViewerMain.this, "不支持的编码格式[" + encoding + "]");
+		    return;
+		}
+		try {
+			LogViewerPanel jPanel1 = new LogViewerPanel(
+			        new FileLogReader(file, encoding));
+			jPanel1.setLogFile(file);
+			jPanel1.setLogFileEncoding(encoding);
+			jTabbedPane1.addTab(null, jPanel1);
+			TabTitlePanel tabTitlePanel = new TabTitlePanel(file.getName(), jPanel1, jTabbedPane1);
+			jPanel1.setLogChangedListener(tabTitlePanel);
+			jTabbedPane1.setTabComponentAt(jTabbedPane1.indexOfComponent(jPanel1), tabTitlePanel);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			JOptionPane.showMessageDialog(LogViewerMain.this, "打开本地日志文件[" + file.getAbsolutePath() + "]失败");
+		}
+		try {
+		    // 延迟一下
+		    Thread.sleep(200);
+		} catch (InterruptedException e) {
+		    e.printStackTrace();
 		}
 	}
 

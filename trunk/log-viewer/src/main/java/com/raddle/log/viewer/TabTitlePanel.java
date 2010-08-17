@@ -82,7 +82,11 @@ public class TabTitlePanel extends JPanel implements LogChangedListener {
                         if (c instanceof LogViewerPanel) {
                             LogViewerPanel p = (LogViewerPanel) c;
                             p.stopTimer();
-                            p.getLogReader().close();
+                            try {
+								p.getLogReader().close();
+							} catch (Exception e1) {
+								e1.printStackTrace();
+							}
                         }
                         tabbedPane.remove(tabbedPane.indexOfTabComponent(TabTitlePanel.this));
                     }

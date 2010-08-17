@@ -242,13 +242,11 @@ public class NetLogServer {
                     result.setMessage("permission is denied");
                     System.out.println("permission is denied");
                 }
-                ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
                 // 如果是保存文件，直接写了文件流，不写入结果对象
                 if(!LogCommand.CMD_SAVE_AS.equals(command.getCmdCode())){
+                	ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
                 	out.writeObject(result);
                 }
-                in.close();
-                out.close();
                 client.close();
                 // 发送后关闭监听
                 if(stop){

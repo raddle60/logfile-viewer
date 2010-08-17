@@ -243,7 +243,10 @@ public class NetLogServer {
                     System.out.println("permission is denied");
                 }
                 ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
-                out.writeObject(result);
+                // 如果是保存文件，直接写了文件流，不写入结果对象
+                if(!LogCommand.CMD_SAVE_AS.equals(command.getCmdCode())){
+                	out.writeObject(result);
+                }
                 in.close();
                 out.close();
                 client.close();

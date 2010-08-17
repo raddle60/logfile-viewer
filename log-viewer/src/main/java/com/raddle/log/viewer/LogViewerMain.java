@@ -275,7 +275,11 @@ public class LogViewerMain extends javax.swing.JFrame {
 		    if (c instanceof LogViewerPanel) {
 		        LogViewerPanel p = (LogViewerPanel) c;
 		        p.stopTimer();
-		        p.getLogReader().close();
+		        try {
+					p.getLogReader().close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 		    }
 		}
 		while(count > 0){

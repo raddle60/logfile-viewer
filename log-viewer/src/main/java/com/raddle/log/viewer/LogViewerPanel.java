@@ -387,7 +387,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
             }
             int logListSize = logList.getModel().getSize();
             if (logListSize > 0) {
-                scrollToBottom(logListSize);
+                scrollToBottom();
             }
             if(logChangedListener != null){
                 logChangedListener.logChanged();
@@ -397,7 +397,13 @@ public class LogViewerPanel extends javax.swing.JPanel {
         updateFileSize();
     }
 
-	private void scrollToBottom(int logListSize) {
+	private void scrollToBottom() {
+		try {
+			// 等待顯示完成
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		JScrollBar scrollBar = jScrollPane1.getVerticalScrollBar();
 		scrollBar.setValue(scrollBar.getMaximum());
 	}
@@ -425,7 +431,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
             ppreviousIndex = previousIndex;
             if (ss.length > 0) {
                 if (logListSize > 0) {
-                    scrollToBottom(logListSize);
+                    scrollToBottom();
                 }
             }
             updateTime();

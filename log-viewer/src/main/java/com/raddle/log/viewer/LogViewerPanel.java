@@ -31,6 +31,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -386,8 +387,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
             }
             int logListSize = logList.getModel().getSize();
             if (logListSize > 0) {
-                Rectangle rect = logList.getCellBounds(logListSize - 1, logListSize - 1);
-                logList.scrollRectToVisible(rect);
+                scrollToBottom(logListSize);
             }
             if(logChangedListener != null){
                 logChangedListener.logChanged();
@@ -396,6 +396,11 @@ public class LogViewerPanel extends javax.swing.JPanel {
         updateTime();
         updateFileSize();
     }
+
+	private void scrollToBottom(int logListSize) {
+		JScrollBar scrollBar = jScrollPane1.getVerticalScrollBar();
+		scrollBar.setValue(scrollBar.getMaximum());
+	}
 
     private void readLastBytes() {
         try {
@@ -420,8 +425,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
             ppreviousIndex = previousIndex;
             if (ss.length > 0) {
                 if (logListSize > 0) {
-                    Rectangle rect = logList.getCellBounds(logListSize - 1, logListSize - 1);
-                    logList.scrollRectToVisible(rect);
+                    scrollToBottom(logListSize);
                 }
             }
             updateTime();

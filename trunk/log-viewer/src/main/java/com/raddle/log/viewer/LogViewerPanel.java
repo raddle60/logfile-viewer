@@ -98,7 +98,11 @@ public class LogViewerPanel extends javax.swing.JPanel {
             public void run() {
                 try {
                     if (autoScrollChk.isSelected()) {
-                        readAppendLines();
+                    	if(logList.getModel().getSize() == 0){
+                    		readLastBytes();
+                    	}else{
+                    		readAppendLines();
+                    	}
                     }
                 } catch (Throwable e) {
                     // 出异常了也继续执行
@@ -323,9 +327,6 @@ public class LogViewerPanel extends javax.swing.JPanel {
 
                     });
                     logList.setModel(logListModel);
-                    if (autoScrollChk.isSelected()) {
-                        readLastBytes();
-                    }
                 }
             }
             {
@@ -369,6 +370,12 @@ public class LogViewerPanel extends javax.swing.JPanel {
 	   		ppreviousIndex --;
 	        previousIndex --;
         }
+		try {
+			// 等待顯示完成
+			Thread.sleep(40);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
     }
 
     public void stopTimer() {
@@ -400,7 +407,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
 	private void scrollToBottom() {
 		try {
 			// 等待顯示完成
-			Thread.sleep(500);
+			Thread.sleep(50);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

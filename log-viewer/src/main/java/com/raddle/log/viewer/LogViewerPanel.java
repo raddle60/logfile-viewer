@@ -12,6 +12,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -267,28 +268,31 @@ public class LogViewerPanel extends javax.swing.JPanel {
                 });
             }
             {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(LogViewerPanel.class.getResourceAsStream("/line-color.properties")));
-                final Map<Pattern, Color> colorPattern = new LinkedHashMap();
-                String line = reader.readLine();
-                while (line != null) {
-                    int index = line.indexOf('=');
-                    String colorStr = line.substring(0, index);
-                    String pattern = line.substring(index + 1);
-                    String regxStr = pattern.substring(1, pattern.length() - 1);
-                    if(colorStr.indexOf(',') != -1){
-                    	String[] rgbStr = colorStr.split(",");
-                    	int[] rgb = new int[3];
-                    	rgb[0] = Integer.parseInt(rgbStr[0]);
-                    	rgb[1] = Integer.parseInt(rgbStr[1]);
-                    	rgb[2] = Integer.parseInt(rgbStr[2]);
-                    	colorPattern.put(Pattern.compile(regxStr, Pattern.CASE_INSENSITIVE), new Color(rgb[0], rgb[1], rgb[2]));
-                    }else if(colorStr.startsWith("0x")){
-                    	String rgbStr = colorStr.substring(2);
-                    	colorPattern.put(Pattern.compile(regxStr, Pattern.CASE_INSENSITIVE), new Color(Integer.parseInt(rgbStr,16)));
-                    }
-                    line = reader.readLine();
-                }
-
+            	final Map<Pattern, Color> colorPattern = new LinkedHashMap();
+            	InputStream stream = LogViewerPanel.class.getResourceAsStream("/line-color.properties");
+            	if(stream != null){
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                    String line = reader.readLine();
+                    while (line != null) {
+                        int index = line.indexOf('=');
+                        String colorStr = line.substring(0, index);
+                        String pattern = line.substring(index + 1);
+                        String regxStr = pattern.substring(1, pattern.length() - 1);
+                        if(colorStr.indexOf(',') != -1){
+                        	String[] rgbStr = colorStr.split(",");
+                        	int[] rgb = new int[3];
+                        	rgb[0] = Integer.parseInt(rgbStr[0]);
+                        	rgb[1] = Integer.parseInt(rgbStr[1]);
+                        	rgb[2] = Integer.parseInt(rgbStr[2]);
+                        	colorPattern.put(Pattern.compile(regxStr, Pattern.CASE_INSENSITIVE), new Color(rgb[0], rgb[1], rgb[2]));
+                        }else if(colorStr.startsWith("0x")){
+                        	String rgbStr = colorStr.substring(2);
+                        	colorPattern.put(Pattern.compile(regxStr, Pattern.CASE_INSENSITIVE), new Color(Integer.parseInt(rgbStr,16)));
+                        }
+                        line = reader.readLine();
+                    }     		
+            	}
+            	
                 jScrollPane1 = new JScrollPane();
                 this.add(jScrollPane1, new AnchorConstraint(80, 12, 12, 12, AnchorConstraint.ANCHOR_ABS,
                         AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_ABS));

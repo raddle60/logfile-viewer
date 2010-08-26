@@ -35,6 +35,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.cloudgarden.layout.AnchorConstraint;
@@ -362,18 +363,21 @@ public class LogViewerPanel extends javax.swing.JPanel {
         }
     }
 
-    private void addElement(String s) {
-        DefaultComboBoxModel m = (DefaultComboBoxModel) logList.getModel();
-        m.addElement(s.trim());
-        if (m.getSize() > MAX_LINES) {
-            m.removeElementAt(0);
-	   		ppreviousIndex --;
-	        previousIndex --;
-        }
-		try {
-			// 等待顯示完成
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
+    private void addElement(final String s) {
+    	try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+			        DefaultComboBoxModel m = (DefaultComboBoxModel) logList.getModel();
+			        m.addElement(s.trim());
+			        if (m.getSize() > MAX_LINES) {
+			            m.removeElementAt(0);
+				   		ppreviousIndex --;
+				        previousIndex --;
+			        }
+				}
+			});
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
     }

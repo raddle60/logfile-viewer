@@ -416,13 +416,16 @@ public class LogViewerPanel extends javax.swing.JPanel {
 
 	private void scrollToBottom() {
 		try {
-			// 等待顯示完成
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+					JScrollBar scrollBar = jScrollPane1.getVerticalScrollBar();
+					scrollBar.setValue(scrollBar.getMaximum());
+				}
+			});
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		JScrollBar scrollBar = jScrollPane1.getVerticalScrollBar();
-		scrollBar.setValue(scrollBar.getMaximum());
 	}
 
     private void readLastBytes() {

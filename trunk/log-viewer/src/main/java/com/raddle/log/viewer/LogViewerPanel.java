@@ -364,22 +364,18 @@ public class LogViewerPanel extends javax.swing.JPanel {
     }
 
     private void addElement(final String s) {
-    	try {
-			SwingUtilities.invokeAndWait(new Runnable() {
-				@Override
-				public void run() {
-			        DefaultComboBoxModel m = (DefaultComboBoxModel) logList.getModel();
-			        m.addElement(s.trim());
-			        if (m.getSize() > MAX_LINES) {
-			            m.removeElementAt(0);
-				   		ppreviousIndex --;
-				        previousIndex --;
-			        }
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				DefaultComboBoxModel m = (DefaultComboBoxModel) logList.getModel();
+				m.addElement(s.trim());
+				if (m.getSize() > MAX_LINES) {
+					m.removeElementAt(0);
+					ppreviousIndex--;
+					previousIndex--;
 				}
-			});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			}
+		});
     }
 
     public void stopTimer() {
@@ -391,84 +387,87 @@ public class LogViewerPanel extends javax.swing.JPanel {
     }
 
     private void readAppendLines() {
-    	new Thread() {
-			
-			@Override
-			public void run() {
-		        String[] ss = LogViewerPanel.this.logReader.readAppendedLines();
-		        if (ss.length > 0) {
-		            for (String s : ss) {
-		                addElement(s);
-		            }
-		            int logListSize = logList.getModel().getSize();
-		            if (logListSize > 0) {
-		                scrollToBottom();
-		            }
-		            if(logChangedListener != null){
-		                logChangedListener.logChanged();
-		            }
-		        }
-		        updateTime();
-		        updateFileSize();
+		String[] ss = LogViewerPanel.this.logReader.readAppendedLines();
+		if (ss.length > 0) {
+			for (String s : ss) {
+				addElement(s);
 			}
-		}.start();
+			scrollToBottom();
+			if (logChangedListener != null) {
+				logChangedListener.logChanged();
+			}
+		}
+		updateTime();
+		updateFileSize();
     }
 
 	private void scrollToBottom() {
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
+		boolean atBottom = false;
+		int prevalue = 0;
+		int count = 0;
+		while (!atBottom) {
+			final JScrollBar scrollBar = jScrollPane1.getVerticalScrollBar();
+			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					JScrollBar scrollBar = jScrollPane1.getVerticalScrollBar();
 					scrollBar.setValue(scrollBar.getMaximum());
 				}
 			});
-		} catch (Exception e) {
-			e.printStackTrace();
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			if (prevalue != scrollBar.getValue()) {
+				prevalue = scrollBar.getValue();
+			} else if (count > 3) {
+				atBottom = true;
+			} else {
+				count++;
+			}
 		}
 	}
-
+	
     private void readLastBytes() {
-    	new Thread() {
-			
+    	new Thread(){
+
 			@Override
 			public void run() {
 				try {
-		            int kBytes = Integer.parseInt(lastBytesTxt.getText());
-		            if (kBytes < 0) {
-		                JOptionPane.showMessageDialog(LogViewerPanel.this, "尾部字节数不能小于0");
-		                return;
-		            }
-		            if (kBytes > 1024) {
-		                JOptionPane.showMessageDialog(LogViewerPanel.this, "尾部字节数不能大于1024KB");
-		                return;
-		            }
-		            DefaultComboBoxModel m = (DefaultComboBoxModel) logList.getModel();
-		            m.removeAllElements();
-		            long lastBytes = kBytes * 1024;
-		            String[] ss = LogViewerPanel.this.logReader.readLastBytes(lastBytes);
-		            for (String s : ss) {
-		                addElement(s);
-		            }
-		            int logListSize = logList.getModel().getSize();
-		            previousIndex = logListSize - 1;
-		            ppreviousIndex = previousIndex;
-		            if (ss.length > 0) {
-		                if (logListSize > 0) {
-		                    scrollToBottom();
-		                }
-		            }
-		            updateTime();
-		            updateFileSize();
-		        } catch (NumberFormatException e) {
-		            e.printStackTrace();
-		            JOptionPane.showMessageDialog(LogViewerPanel.this, "错误的数字格式");
-		        } catch (Exception e) {
-		            e.printStackTrace();
-		            JOptionPane.showMessageDialog(LogViewerPanel.this, "读取日志文件异常：" + e.getMessage());
-		        }
+					int kBytes = Integer.parseInt(lastBytesTxt.getText());
+					if (kBytes < 0) {
+						JOptionPane.showMessageDialog(LogViewerPanel.this, "尾部字节数不能小于0");
+						return;
+					}
+					if (kBytes > 1024) {
+						JOptionPane.showMessageDialog(LogViewerPanel.this,
+								"尾部字节数不能大于1024KB");
+						return;
+					}
+					DefaultComboBoxModel m = (DefaultComboBoxModel) logList.getModel();
+					m.removeAllElements();
+					long lastBytes = kBytes * 1024;
+					String[] ss = LogViewerPanel.this.logReader.readLastBytes(lastBytes);
+					for (String s : ss) {
+						addElement(s);
+					}
+					int logListSize = logList.getModel().getSize();
+					previousIndex = logListSize - 1;
+					ppreviousIndex = previousIndex;
+					if (ss.length > 0) {
+						scrollToBottom();
+					}
+					updateTime();
+					updateFileSize();
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(LogViewerPanel.this, "错误的数字格式");
+				} catch (Exception e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(LogViewerPanel.this, "读取日志文件异常：" + e.getMessage());
+				}
 			}
-		}.start();
+    	}.start();
     }
 
 	private void updateTime() {

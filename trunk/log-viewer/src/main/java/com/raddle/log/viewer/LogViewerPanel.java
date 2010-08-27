@@ -112,7 +112,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
                     addElement("自动滚动异常:" + e.getMessage());
                 }
             }
-        }, 1000, refreshSecend * 1000);
+        }, refreshSecend * 1000, refreshSecend * 1000);
     }
 
     @SuppressWarnings("unchecked")
@@ -347,6 +347,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
                     }
                 });
             }
+            readLastBytes();
         } catch (Exception e) {
             e.printStackTrace();
         }

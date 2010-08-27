@@ -425,7 +425,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
 			}
 			if (prevalue != scrollBar.getValue()) {
 				prevalue = scrollBar.getValue();
-			} else if (count > 3) {
+			} else if ((prevalue != 0 && count > 3) || (prevalue == 0 && count > 30)) {
 				atBottom = true;
 			} else {
 				count++;

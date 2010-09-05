@@ -100,11 +100,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
             public void run() {
                 try {
                     if (autoScrollChk.isSelected()) {
-                    	if(logList.getModel().getSize() == 0){
-                    		readLastBytes();
-                    	} else {
-                    		readAppendLines();
-                    	}
+                    	readAppendLines();
                     }
                 } catch (Throwable e) {
                     // 出异常了也继续执行

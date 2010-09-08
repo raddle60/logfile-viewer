@@ -7,7 +7,9 @@ import java.util.Map;
 public class LogResult implements Serializable {
 
     public final static String        ATTR_LINES       = "lines";
+    @Deprecated
     public final static String        ATTR_FILE_IDS    = "fileIds";
+    public final static String        ATTR_FILES       = "files";
     public final static String        ATTR_LENGTH      = "length";
 
     private static final long         serialVersionUID = 1L;

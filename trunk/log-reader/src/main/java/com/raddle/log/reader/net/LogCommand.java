@@ -14,7 +14,9 @@ public class LogCommand implements Serializable {
     public final static String        CMD_READ_APPENDED_LINES = "readAppendedLines";
     public final static String        CMD_READ_LAST_BYTES     = "readLastBytes";
     public final static String        CMD_SAVE_AS             = "saveAs";
+    @Deprecated
     public final static String        CMD_LIST_FILE_ID        = "listFileId";
+    public final static String        CMD_LIST_FILE        	  = "listFile";
     public final static String        CMD_CLOSE               = "close";
 	public final static String        CMD_SHUTDOWN            = "shutdown";
 	public final static String        CMD_FILE_LENGTH         = "fileLength";

@@ -9,13 +9,20 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -25,6 +32,7 @@ import java.util.regex.Pattern;
 import com.raddle.log.reader.file.FileLogReader;
 import com.raddle.log.reader.net.LogCommand;
 import com.raddle.log.reader.net.LogResult;
+import com.raddle.log.reader.net.NetLogFile;
 import com.raddle.utils.AntPathFileUtils;
 
 public class NetLogServer {
@@ -182,6 +190,30 @@ public class NetLogServer {
                         reloadFileList();
                         // 列出日志
                         result.setAttr(LogResult.ATTR_FILE_IDS, new ArrayList<String>(logFiles.keySet()).toArray(new String[0]));
+                        result.setSuccess(true);
+                    } else if (LogCommand.CMD_LIST_FILE.equals(command.getCmdCode())) {
+                        reloadFileList();
+                        // 列出日志文件
+                        List<NetLogFile> fileList = new ArrayList<NetLogFile>();
+                        String localIp = getLocalIp();
+                        String localName = getLocalHostName();
+						for (String fileId : logFiles.keySet()) {
+							File localFile = logFiles.get(fileId).getFile();
+							// 文件信息
+							NetLogFile netLogFile = new NetLogFile();
+							netLogFile.setFileId(fileId);
+							netLogFile.setFileName(localFile.getName());
+							netLogFile.setFilePath(localFile.getAbsolutePath());
+							netLogFile.setServerIp(localIp);
+							netLogFile.setServerName(localName);
+							if(localFile.exists()){
+								netLogFile.setLastModified(localFile.lastModified());
+//								netLogFile.setCreatedTime(localFile.);//无方法获得
+								netLogFile.setLength(localFile.length());
+							}
+							fileList.add(netLogFile);
+						}
+						result.setAttr(LogResult.ATTR_FILES, (NetLogFile[]) fileList.toArray(new NetLogFile[fileList.size()]));
                         result.setSuccess(true);
                     } else if (LogCommand.CMD_CLOSE.equals(command.getCmdCode())) {
                         // 移除跟踪
@@ -359,4 +391,35 @@ public class NetLogServer {
         }
 
     }
+    
+	public static String getLocalIp() {
+		Enumeration<NetworkInterface> allNetInterfaces = null;
+		try {
+			allNetInterfaces = NetworkInterface.getNetworkInterfaces();
+		} catch (SocketException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+		while (allNetInterfaces.hasMoreElements()) {
+			NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
+			Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
+			while (addresses.hasMoreElements()) {
+				InetAddress inetAddress = addresses.nextElement();
+				if (inetAddress != null && inetAddress instanceof Inet4Address) {
+					String ip = inetAddress.getHostAddress();
+					if (ip != null && !ip.equals("127.0.0.1")) {
+						return ip;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static String getLocalHostName() {
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			return null;
+		}
+	}
 }

@@ -27,7 +27,9 @@ import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
+import com.raddle.log.reader.net.NetLogFile;
 import com.raddle.log.reader.net.NetLogReader;
+import com.raddle.log.viewer.utils.FileSizeUtils;
 import com.raddle.log.viewer.utils.ProperiesExt;
 
 /**
@@ -56,7 +58,7 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
     private String ip;
     private String[] logCodes;
     private JLabel jLabel1;
-    private List<String> logFiles = new LinkedList<String>();
+    private List<LogFileWrapper> logFiles = new LinkedList<LogFileWrapper>();
 
     /**
      * Auto-generated main method to display this JDialog
@@ -112,15 +114,15 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
                                 NetLogReader r = NetLogReader.connectServer("", ipCBox.getSelectedItem() + "", Integer
                                         .parseInt(portTxt.getText()));
                                 logFiles.clear();
-                                String[] ss = r.listFileId();
-                                for (String s : ss) {
-                                    logFiles.add(s);
+                                NetLogFile[] ss = r.listFile();
+                                for (NetLogFile s : ss) {
+                                    logFiles.add(new LogFileWrapper(s));
                                 }
                                 r.close();
                                 DefaultComboBoxModel m = (DefaultComboBoxModel) logFileList.getModel();
                                 m.removeAllElements();
-                                for (String string : logFiles) {
-                                    m.addElement(string);
+                                for (LogFileWrapper fw : logFiles) {
+                                    m.addElement(fw);
                                 }
                                 ip = ipCBox.getSelectedItem() + "";
                                 port = Integer.parseInt(portTxt.getText());
@@ -154,7 +156,7 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
                                 Object[] selecteds = logFileList.getSelectedValues();
                                 logCodes = new String[selecteds.length];
                                 for (int i = 0; i < selecteds.length; i++) {
-                                    logCodes[i] = selecteds[i].toString();
+                                    logCodes[i] = ((LogFileWrapper)selecteds[i]).getLogFile().getFileId();
                                 }
                                 NetReaderConfigDialog.this.setVisible(false);
                             } else {
@@ -273,7 +275,8 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
                 JOptionPane.showMessageDialog(NetReaderConfigDialog.this, "正则表达式不正确," + e.getMessage());
             }
         }
-        for (String string : logFiles) {
+        for (LogFileWrapper fw : logFiles) {
+        	String string = fw.toString();
             if (filterTxt.getText().length() > 0) {
                 if (regexChk.isSelected() && p.matcher(string).find()) {
                     m.addElement(string);
@@ -285,5 +288,22 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
             }
         }
     }
+    
+	private class LogFileWrapper {
+		private NetLogFile logFile;
+
+		public LogFileWrapper(NetLogFile logFile) {
+			this.logFile = logFile;
+		}
+
+		public NetLogFile getLogFile() {
+			return logFile;
+		}
+
+		@Override
+		public String toString() {
+			return logFile.getFileId() + "[" + FileSizeUtils.readableSize(logFile.getLength()) + "]";
+		}
+	}
 
 }

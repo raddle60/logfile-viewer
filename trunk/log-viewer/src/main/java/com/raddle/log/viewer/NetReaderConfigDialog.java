@@ -52,6 +52,7 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
     private JTextField portTxt;
     private JComboBox ipCBox;
     private int port;
+    private JLabel fileSizeLeb;
     private JButton filterBtn;
     private JCheckBox regexChk;
     private JTextField filterTxt;
@@ -115,10 +116,15 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
                                         .parseInt(portTxt.getText()));
                                 logFiles.clear();
                                 NetLogFile[] ss = r.listFile();
+                                long allLength = 0;
                                 for (NetLogFile s : ss) {
                                     logFiles.add(new LogFileWrapper(s));
+                                    if(s.getLength() > 0){
+                                    	allLength += s.getLength();
+                                    }
                                 }
                                 r.close();
+                                fileSizeLeb.setText("日志总大小："+ FileSizeUtils.readableSize(allLength));
                                 DefaultComboBoxModel m = (DefaultComboBoxModel) logFileList.getModel();
                                 m.removeAllElements();
                                 for (LogFileWrapper fw : logFiles) {
@@ -137,7 +143,7 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
                 {
                     jScrollPane1 = new JScrollPane();
                     getContentPane().add(jScrollPane1);
-                    jScrollPane1.setBounds(12, 114, 273, 169);
+                    jScrollPane1.setBounds(12, 114, 457, 169);
                     {
                         ListModel logFileListModel = new DefaultComboBoxModel(new String[] { "" });
                         logFileList = new JList();
@@ -149,7 +155,7 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
                     traceBtn = new JButton();
                     getContentPane().add(traceBtn);
                     traceBtn.setText("\u8ddf\u8e2a");
-                    traceBtn.setBounds(297, 114, 72, 22);
+                    traceBtn.setBounds(397, 81, 72, 22);
                     traceBtn.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent evt) {
                             if (logFileList.getSelectedValue() != null) {
@@ -244,6 +250,12 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
                         }
                     });
                 }
+                {
+                	fileSizeLeb = new JLabel();
+                	getContentPane().add(fileSizeLeb);
+                	fileSizeLeb.setText("");
+                	fileSizeLeb.setBounds(298, 10, 226, 15);
+                }
             }
             pack();
         } catch (Exception e) {
@@ -275,18 +287,29 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
                 JOptionPane.showMessageDialog(NetReaderConfigDialog.this, "正则表达式不正确," + e.getMessage());
             }
         }
+        long allLength = 0;
         for (LogFileWrapper fw : logFiles) {
         	String string = fw.toString();
             if (filterTxt.getText().length() > 0) {
                 if (regexChk.isSelected() && p.matcher(string).find()) {
                     m.addElement(string);
+                    if(fw.getLogFile().getLength() > 0){
+                    	allLength += fw.getLogFile().getLength();
+                    }
                 } else if (string.indexOf(filterTxt.getText()) != -1) {
                     m.addElement(string);
+                    if(fw.getLogFile().getLength() > 0){
+                    	allLength += fw.getLogFile().getLength();
+                    }
                 }
             } else {
                 m.addElement(string);
+                if(fw.getLogFile().getLength() > 0){
+                	allLength += fw.getLogFile().getLength();
+                }
             }
         }
+        fileSizeLeb.setText("日志总大小："+ FileSizeUtils.readableSize(allLength));
     }
     
 	private class LogFileWrapper {

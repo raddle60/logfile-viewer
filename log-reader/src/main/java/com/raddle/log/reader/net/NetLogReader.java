@@ -142,6 +142,7 @@ public class NetLogReader implements LogReader {
         });
     }
 
+    @Deprecated
     public String[] listFileId() {
         return (String[]) doInSocket(new SocketCallback() {
 
@@ -166,7 +167,32 @@ public class NetLogReader implements LogReader {
             }
         });
     }
+    
+    public NetLogFile[] listFile() {
+        return (NetLogFile[]) doInSocket(new SocketCallback() {
 
+            @Override
+            public Object connected(Socket socket) throws Exception {
+                LogCommand cmd = new LogCommand();
+                cmd.setSessionId(id);
+                cmd.setCmdCode(LogCommand.CMD_LIST_FILE);
+                // 发送命令
+                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                out.writeObject(cmd);
+                //获得结果
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                LogResult result = (LogResult) in.readObject();
+                in.close();
+                out.close();
+                if(result.isSuccess()){
+                    return result.getAttr(LogResult.ATTR_FILES);
+                }else{
+                    throw new RuntimeException(result.getMessage());
+                }
+            }
+        });
+    }
+    
     public void close() {
         doInSocket(new SocketCallback() {
 
@@ -192,7 +218,7 @@ public class NetLogReader implements LogReader {
         Socket socket = null;
         try {
             socket = new Socket(ip, port);
-            socket.setSoTimeout(1000);
+            socket.setSoTimeout(2000);
             return callback.connected(socket);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);

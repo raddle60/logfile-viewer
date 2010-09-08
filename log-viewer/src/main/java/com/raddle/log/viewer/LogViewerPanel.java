@@ -14,7 +14,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -42,6 +41,7 @@ import com.cloudgarden.layout.AnchorConstraint;
 import com.cloudgarden.layout.AnchorLayout;
 import com.raddle.log.reader.LogReader;
 import com.raddle.log.viewer.listener.LogChangedListener;
+import com.raddle.log.viewer.utils.FileSizeUtils;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -478,20 +478,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
     private void updateFileSize(){
 		try {
 			long length = logReader.getFileBytes();
-			long k = 1024;
-			long m = 1024 * k;
-			long g = 1024 * m;
-			String lengthDesc = "";
-			DecimalFormat format = new DecimalFormat("0.###");
-			if (length < k) {
-				lengthDesc = String.valueOf(length) + "Byte";
-			} else if (length >= k && length < m) {
-				lengthDesc = format.format((double) length / k) + "KB";
-			} else if (length >= m && length < g) {
-				lengthDesc = format.format((double) length / m) + "MB";
-			} else if (length > g) {
-				lengthDesc = format.format((double) length / g) + "GB";
-			}
+			String lengthDesc = FileSizeUtils.readableSize(length);
 			fileLengthLeb.setText("文件大小：" + lengthDesc);
 			fileLengthLeb.setToolTipText(null);
 		} catch (Exception e) {

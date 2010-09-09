@@ -54,6 +54,8 @@ public class LogViewerMain extends javax.swing.JFrame {
     private JMenu jMenu1;
     private JMenuItem closeAllMenuItem;
     private JMenu jMenu5;
+    private JMenuItem jMenuItem1;
+    private JMenu jMenu2;
     private JMenuItem manageTabMenuItem;
     private JTabbedPane jTabbedPane1;
     private JMenuItem openFileMenuItem;
@@ -150,6 +152,25 @@ public class LogViewerMain extends javax.swing.JFrame {
                             }
                         });
                     }
+                }
+                {
+                	jMenu2 = new JMenu();
+                	jMenuBar1.add(jMenu2);
+                	jMenu2.setText("\u65e5\u5fd7\u7a7a\u95f4");
+                	{
+                		jMenuItem1 = new JMenuItem();
+                		jMenu2.add(jMenuItem1);
+                		jMenuItem1.setText("\u67e5\u770b\u5360\u7528\u7a7a\u95f4");
+                		jMenuItem1.addActionListener(new ActionListener() {
+                			public void actionPerformed(ActionEvent evt) {
+                				LogFileSizeDialog fileSizeView = new LogFileSizeDialog(LogViewerMain.this);
+                				fileSizeView.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                				fileSizeView.setModal(false);
+                				fileSizeView.setLocationRelativeTo(LogViewerMain.this);
+                				fileSizeView.setVisible(true);
+                			}
+                		});
+                	}
                 }
                 {
                 	jMenu1 = new JMenu();

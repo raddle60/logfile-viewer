@@ -207,18 +207,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
                 nextBtn.setPreferredSize(new java.awt.Dimension(80, 22));
                 nextBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent evt) {
-                        int size = logList.getModel().getSize();
-                        for (int i = searchedIndex + 1; i < size; i++) {
-                            String s = logList.getModel().getElementAt(i).toString();
-                            if (keywordTxt.getText().trim().length() > 0
-                                    && s.toLowerCase().indexOf(keywordTxt.getText().toLowerCase()) != -1) {
-                                searchedIndex = i;
-                                logList.setSelectedIndex(i);
-                                Rectangle rect = logList.getCellBounds(i, i);
-                                logList.scrollRectToVisible(rect);
-                                break;
-                            }
-                        }
+                        searchNext();
                     }
                 });
             }
@@ -230,17 +219,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
                 preBtn.setPreferredSize(new java.awt.Dimension(77, 22));
                 preBtn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent evt) {
-                        for (int i = Math.max(searchedIndex - 1, 0); i > 0; i--) {
-                            String s = logList.getModel().getElementAt(i).toString();
-                            if (keywordTxt.getText().trim().length() > 0
-                                    && s.toLowerCase().indexOf(keywordTxt.getText().toLowerCase()) != -1) {
-                                searchedIndex = i;
-                                logList.setSelectedIndex(i);
-                                Rectangle rect = logList.getCellBounds(i, i);
-                                logList.scrollRectToVisible(rect);
-                                break;
-                            }
-                        }
+                        searchPrevious();
                     }
                 });
             }
@@ -365,7 +344,58 @@ public class LogViewerPanel extends javax.swing.JPanel {
             }
         }
     }
+    
+	private void searchPrevious() {
+		int start = searchedIndex;
+		if (logList.getSelectedIndex() != -1) {
+			if (start == logList.getSelectedIndex()) {
+				start = start - 1;
+			} else {
+				start = logList.getSelectedIndex();
+			}
+		}
+		for (int i = Math.max(start, 0); i > 0; i--) {
+		    String s = logList.getModel().getElementAt(i).toString();
+		    if (keywordTxt.getText().trim().length() > 0
+		            && s.toLowerCase().indexOf(keywordTxt.getText().toLowerCase()) != -1) {
+		        searchedIndex = i;
+		        break;
+		    }
+		}
+		if (searchedIndex != -1) {
+			logList.setSelectedIndex(searchedIndex);
+			Rectangle rect = logList.getCellBounds(searchedIndex, searchedIndex);
+			logList.scrollRectToVisible(rect);
+		}
+	}
 
+	private void searchNext() {
+		int start = searchedIndex;
+		if (logList.getSelectedIndex() != -1) {
+			if (start == logList.getSelectedIndex()) {
+				start = start + 1;
+			} else {
+				start = logList.getSelectedIndex();
+			}
+		} else {
+			start = start + 1;
+		}
+		int size = logList.getModel().getSize();
+		for (int i = Math.max(start, 0); i < size; i++) {
+		    String s = logList.getModel().getElementAt(i).toString();
+		    if (keywordTxt.getText().trim().length() > 0
+		            && s.toLowerCase().indexOf(keywordTxt.getText().toLowerCase()) != -1) {
+		        searchedIndex = i;
+		        break;
+		    }
+		}
+		if (searchedIndex != -1) {
+			logList.setSelectedIndex(searchedIndex);
+			Rectangle rect = logList.getCellBounds(searchedIndex, searchedIndex);
+			logList.scrollRectToVisible(rect);
+		}
+	}
+	
     private void addElement(final String s) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -540,4 +570,5 @@ public class LogViewerPanel extends javax.swing.JPanel {
 	public void setLogCode(String logCode) {
 		this.logCode = logCode;
 	}
+
 }

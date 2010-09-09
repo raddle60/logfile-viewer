@@ -310,19 +310,21 @@ public class LogViewerPanel extends javax.swing.JPanel {
                                 boolean isSelected, boolean cellHasFocus) {
                             Component c = super.getListCellRendererComponent(list, value, index, isSelected,
                                     cellHasFocus);
-                            for (Pattern pattern : colorPattern.keySet()) {
-                                if (value != null) {
-                                    Matcher matcher = pattern.matcher(value.toString());
-                                    if (matcher.find()) {
-                                        c.setBackground(colorPattern.get(pattern));
+							if (!isSelected) {
+                                for (Pattern pattern : colorPattern.keySet()) {
+                                    if (value != null) {
+                                        Matcher matcher = pattern.matcher(value.toString());
+                                        if (matcher.find()) {
+                                            c.setBackground(colorPattern.get(pattern));
+                                        }
                                     }
                                 }
-                            }
-							if (index > ppreviousIndex && index <= previousIndex) {
-								c.setForeground(new Color(0x993366));
-							} else if (index > previousIndex) {
-								c.setForeground(new Color(0x0000FF));
-							}
+    							if (index > ppreviousIndex && index <= previousIndex) {
+    								c.setForeground(new Color(0x993366));
+    							} else if (index > previousIndex) {
+    								c.setForeground(new Color(0x0000FF));
+    							}
+                        	}
                             return c;
                         }
 

@@ -1,0 +1,146 @@
+package com.raddle.log.viewer;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
+import com.cloudgarden.layout.AnchorConstraint;
+import com.cloudgarden.layout.AnchorLayout;
+import com.raddle.log.reader.net.NetLogFile;
+import com.raddle.log.reader.net.NetLogReader;
+import com.raddle.log.viewer.utils.FileSizeUtils;
+
+/**
+* This code was edited or generated using CloudGarden's Jigloo
+* SWT/Swing GUI Builder, which is free for non-commercial
+* use. If Jigloo is being used commercially (ie, by a corporation,
+* company or business for any purpose whatever) then you
+* should purchase a license for each developer using Jigloo.
+* Please visit www.cloudgarden.com for details.
+* Use of Jigloo implies acceptance of these licensing terms.
+* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
+* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
+* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
+*/
+public class LogFileSizeDialog extends javax.swing.JDialog {
+
+	private static final long serialVersionUID = 1L;
+	private JTextArea logServerTxt;
+	private JScrollPane jScrollPane1;
+	private JTable logSizeTable;
+	private JButton viewBtn;
+
+	/**
+	* Auto-generated main method to display this JDialog
+	*/
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				JFrame frame = new JFrame();
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				LogFileSizeDialog inst = new LogFileSizeDialog(frame);
+                inst.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                inst.setVisible(true);
+			}
+		});
+	}
+	
+	public LogFileSizeDialog(JFrame frame) {
+		super(frame);
+		initGUI();
+	}
+	
+	private void initGUI() {
+		try {
+			AnchorLayout thisLayout = new AnchorLayout();
+			getContentPane().setLayout(thisLayout);
+			this.setTitle("\u67e5\u770b\u65e5\u5fd7\u6587\u4ef6\u7a7a\u9593");
+			{
+				jScrollPane1 = new JScrollPane();
+				getContentPane().add(jScrollPane1, new AnchorConstraint(104, 12, 12, 12, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_ABS));
+				jScrollPane1.setPreferredSize(new java.awt.Dimension(780, 257));
+				{
+					TableModel logSizeTableModel = new DefaultTableModel();
+					logSizeTable = new JTable();
+					jScrollPane1.setViewportView(logSizeTable);
+					logSizeTable.setModel(logSizeTableModel);
+				}
+			}
+			{
+				viewBtn = new JButton();
+				getContentPane().add(viewBtn, new AnchorConstraint(44, 60, 0, 648, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_NONE));
+				viewBtn.setPreferredSize(new java.awt.Dimension(102, 25));
+				viewBtn.setText("\u67e5\u770b");
+				viewBtn.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent evt) {
+						Pattern ipPattern = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d{1,5}");
+						Matcher matcher = ipPattern.matcher(logServerTxt.getText());
+						final DefaultTableModel tableModel  = (DefaultTableModel) logSizeTable.getModel();
+						// 删除行
+						while (tableModel.getRowCount() > 0) {
+							tableModel.removeRow(0);
+						}
+						// 删除列
+						tableModel.setColumnCount(0);
+						tableModel.addColumn("服务地址");
+						tableModel.addColumn("服务器名");
+						tableModel.addColumn("文件总大小");
+						tableModel.addColumn("文件总大小可读");
+						long allLength = 0;
+						int count = 0;
+						while (matcher.find()) {
+							String serverAddress = matcher.group();
+							int index = serverAddress.indexOf(':');
+							String ip = serverAddress.substring(0, index);
+							String port = serverAddress.substring(index + 1);
+							NetLogReader netLogReader = NetLogReader.connectServer("", ip, Integer.parseInt(port));
+							try {
+								NetLogFile[] logFiles = netLogReader.listFile();
+								long length = 0;
+								for (NetLogFile netLogFile : logFiles) {
+									length += netLogFile.getLength();
+								}
+								if (logFiles.length == 0) {
+									tableModel.addRow(new Object[] { ip, "unknown", "unknown", "unknown" });
+								} else {
+									tableModel.addRow(new Object[] { ip, logFiles[0].getServerName(), length, FileSizeUtils.readableSize(length)});
+								}
+								allLength += length;
+							} catch(Exception e){
+								e.printStackTrace();
+								tableModel.addRow(new Object[] { ip, e.getMessage(), "unknown", "unknown" });
+							} finally {
+								netLogReader.close();
+							}
+							count++;
+						}
+						tableModel.addRow(new Object[] { "总大小", "", allLength, FileSizeUtils.readableSize(allLength) });
+						if (count == 0) {
+							JOptionPane.showMessageDialog(LogFileSizeDialog.this, "请输入日志服务器地址，格式为：\"IP:PORT,IP:PORT\"");
+						}
+					}
+				});
+			}
+			{
+				logServerTxt = new JTextArea();
+				getContentPane().add(logServerTxt, new AnchorConstraint(12, 189, 0, 12, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_ABS));
+				logServerTxt.setPreferredSize(new java.awt.Dimension(605, 80));
+				logServerTxt.setText("ip:port,ip:port");
+			}
+			this.setSize(814, 403);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+}

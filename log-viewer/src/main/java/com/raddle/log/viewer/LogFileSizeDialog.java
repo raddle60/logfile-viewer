@@ -13,6 +13,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import com.cloudgarden.layout.AnchorConstraint;
 import com.cloudgarden.layout.AnchorLayout;
@@ -71,10 +72,11 @@ public class LogFileSizeDialog extends javax.swing.JDialog {
 				getContentPane().add(jScrollPane1, new AnchorConstraint(104, 12, 12, 12, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_ABS));
 				jScrollPane1.setPreferredSize(new java.awt.Dimension(780, 257));
 				{
-					TableModel logSizeTableModel = new DefaultTableModel();
 					logSizeTable = new JTable();
 					jScrollPane1.setViewportView(logSizeTable);
+					TableModel logSizeTableModel = new DefaultTableModel();
 					logSizeTable.setModel(logSizeTableModel);
+					logSizeTable.setRowSorter(new TableRowSorter<TableModel>(logSizeTableModel));
 				}
 			}
 			{

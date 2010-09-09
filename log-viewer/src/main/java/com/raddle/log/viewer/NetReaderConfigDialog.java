@@ -292,18 +292,18 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
         	String string = fw.toString();
             if (filterTxt.getText().length() > 0) {
                 if (regexChk.isSelected() && p.matcher(string).find()) {
-                    m.addElement(string);
+                    m.addElement(fw);
                     if(fw.getLogFile().getLength() > 0){
                     	allLength += fw.getLogFile().getLength();
                     }
                 } else if (string.indexOf(filterTxt.getText()) != -1) {
-                    m.addElement(string);
+                    m.addElement(fw);
                     if(fw.getLogFile().getLength() > 0){
                     	allLength += fw.getLogFile().getLength();
                     }
                 }
             } else {
-                m.addElement(string);
+                m.addElement(fw);
                 if(fw.getLogFile().getLength() > 0){
                 	allLength += fw.getLogFile().getLength();
                 }

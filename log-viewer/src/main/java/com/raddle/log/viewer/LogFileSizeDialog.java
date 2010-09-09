@@ -37,6 +37,7 @@ public class LogFileSizeDialog extends javax.swing.JDialog {
 	private static final long serialVersionUID = 1L;
 	private JTextArea logServerTxt;
 	private JScrollPane jScrollPane1;
+	private JScrollPane jScrollPane2;
 	private JTable logSizeTable;
 	private JButton viewBtn;
 
@@ -132,10 +133,14 @@ public class LogFileSizeDialog extends javax.swing.JDialog {
 				});
 			}
 			{
-				logServerTxt = new JTextArea();
-				getContentPane().add(logServerTxt, new AnchorConstraint(12, 189, 0, 12, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_ABS));
-				logServerTxt.setPreferredSize(new java.awt.Dimension(605, 80));
-				logServerTxt.setText("ip:port,ip:port");
+				jScrollPane2 = new JScrollPane();
+				getContentPane().add(jScrollPane2, new AnchorConstraint(12, 189, 0, 12, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_ABS, AnchorConstraint.ANCHOR_NONE, AnchorConstraint.ANCHOR_ABS));
+				jScrollPane2.setPreferredSize(new java.awt.Dimension(603, 80));
+				{
+					logServerTxt = new JTextArea();
+					jScrollPane2.setViewportView(logServerTxt);
+					logServerTxt.setText("ip:port,ip:port");
+				}
 			}
 			this.setSize(814, 403);
 		} catch (Exception e) {

@@ -42,6 +42,7 @@ public class LogFileSizeDialog extends javax.swing.JDialog {
 	private JScrollPane jScrollPane2;
 	private JTable logSizeTable;
 	private JButton viewBtn;
+	private boolean getting = false;
 
 	/**
 	* Auto-generated main method to display this JDialog
@@ -88,66 +89,100 @@ public class LogFileSizeDialog extends javax.swing.JDialog {
 				viewBtn.addActionListener(new ActionListener() {
 					@SuppressWarnings("unchecked")
 					public void actionPerformed(ActionEvent evt) {
-						new Thread(new Runnable() {
-							
-							@Override
-							public void run() {
-								Pattern ipPattern = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d{1,5}");
-								Matcher matcher = ipPattern.matcher(logServerTxt.getText());
-								final DefaultTableModel tableModel  = (DefaultTableModel) logSizeTable.getModel();
-								// 删除行
-								while (tableModel.getRowCount() > 0) {
-									tableModel.removeRow(0);
-								}
-								// 删除列
-								tableModel.setColumnCount(0);
-								tableModel.addColumn("服务地址");
-								tableModel.addColumn("服务器名");
-								tableModel.addColumn("文件总大小");
-								tableModel.addColumn("文件总大小可读");
-								//
-								TableRowSorter rowSorter = (TableRowSorter) logSizeTable.getRowSorter();
-								rowSorter.setComparator(2, new Comparator<Long>() {
-									@Override
-									public int compare(Long o1, Long o2) {
-										return o1.compareTo(o2);
-									}
-								});
-								//
-								long allLength = 0;
-								int count = 0;
-								while (matcher.find()) {
-									String serverAddress = matcher.group();
-									int index = serverAddress.indexOf(':');
-									String ip = serverAddress.substring(0, index);
-									String port = serverAddress.substring(index + 1);
-									NetLogReader netLogReader = NetLogReader.connectServer("", ip, Integer.parseInt(port));
-									try {
-										NetLogFile[] logFiles = netLogReader.listFile();
-										long length = 0;
-										for (NetLogFile netLogFile : logFiles) {
-											length += netLogFile.getLength();
+						if(!getting) {
+							getting = true;
+							viewBtn.setEnabled(false);
+							new Thread(new Runnable() {
+								
+								@Override
+								public void run() {
+									final DefaultTableModel tableModel  = (DefaultTableModel) logSizeTable.getModel();
+									SwingUtilities.invokeLater(new Runnable() {
+
+										@Override
+										public void run() {
+											// 删除行
+											while (tableModel.getRowCount() > 0) {
+												tableModel.removeRow(0);
+											}
 										}
-										if (logFiles.length == 0) {
-											tableModel.addRow(new Object[] { ip, "unknown", "unknown", "unknown" });
-										} else {
-											tableModel.addRow(new Object[] { ip, logFiles[0].getServerName(), length, FileSizeUtils.readableSize(length)});
+									});
+									while (tableModel.getRowCount() > 0) {
+										try {
+											Thread.sleep(10);
+										} catch (InterruptedException e) {
+											e.printStackTrace();
 										}
-										allLength += length;
-									} catch(Exception e){
-										e.printStackTrace();
-										tableModel.addRow(new Object[] { ip, e.getMessage(), "unknown", "unknown" });
-									} finally {
-										netLogReader.close();
 									}
-									count++;
+									SwingUtilities.invokeLater(new Runnable() {
+
+										@Override
+										public void run() {
+											// 删除列
+											tableModel.setColumnCount(0);
+										}
+									});
+									while (tableModel.getColumnCount() > 0) {
+										try {
+											Thread.sleep(10);
+										} catch (InterruptedException e) {
+											e.printStackTrace();
+										}
+									}
+									tableModel.addColumn("服务地址");
+									tableModel.addColumn("服务器名");
+									tableModel.addColumn("文件总大小");
+									tableModel.addColumn("文件总大小可读");
+									//
+									TableRowSorter rowSorter = (TableRowSorter) logSizeTable.getRowSorter();
+									rowSorter.setComparator(2, new Comparator<Long>() {
+										@Override
+										public int compare(Long o1, Long o2) {
+											return o1.compareTo(o2);
+										}
+									});
+									//
+									long allLength = 0;
+									int count = 0;
+									Pattern ipPattern = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d{1,5}");
+									Matcher matcher = ipPattern.matcher(logServerTxt.getText());
+									while (matcher.find()) {
+										String serverAddress = matcher.group();
+										int index = serverAddress.indexOf(':');
+										String ip = serverAddress.substring(0, index);
+										String port = serverAddress.substring(index + 1);
+										NetLogReader netLogReader = NetLogReader.connectServer("", ip, Integer.parseInt(port));
+										try {
+											NetLogFile[] logFiles = netLogReader.listFile();
+											long length = 0;
+											for (NetLogFile netLogFile : logFiles) {
+												length += netLogFile.getLength();
+											}
+											if (logFiles.length == 0) {
+												addRow(tableModel, new Object[] { ip, "unknown", "unknown", "unknown" });
+											} else {
+												addRow(tableModel, new Object[] { ip, logFiles[0].getServerName(), length, FileSizeUtils.readableSize(length)});
+											}
+											allLength += length;
+										} catch(Exception e){
+											e.printStackTrace();
+											addRow(tableModel, new Object[] { ip, e.getMessage(), "unknown", "unknown" });
+										} finally {
+											netLogReader.close();
+										}
+										count++;
+									}
+									addRow(tableModel, new Object[] { "总大小", "", allLength, FileSizeUtils.readableSize(allLength) });
+									if (count == 0) {
+										JOptionPane.showMessageDialog(LogFileSizeDialog.this, "请输入日志服务器地址，格式为：\"IP:PORT,IP:PORT\"");
+									}
+									getting = false;
+									viewBtn.setEnabled(true);
 								}
-								tableModel.addRow(new Object[] { "总大小", "", allLength, FileSizeUtils.readableSize(allLength) });
-								if (count == 0) {
-									JOptionPane.showMessageDialog(LogFileSizeDialog.this, "请输入日志服务器地址，格式为：\"IP:PORT,IP:PORT\"");
-								}
-							}
-						}).start();
+							}).start();
+						} else {
+							JOptionPane.showMessageDialog(LogFileSizeDialog.this, "日志信息未完全获取，请稍后再点");
+						}
 					}
 				});
 			}
@@ -167,4 +202,7 @@ public class LogFileSizeDialog extends javax.swing.JDialog {
 		}
 	}
 
+	private void addRow(final DefaultTableModel tableModel, final Object[] data) {
+		tableModel.addRow(data);
+	}
 }

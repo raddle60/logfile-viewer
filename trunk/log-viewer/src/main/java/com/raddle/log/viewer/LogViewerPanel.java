@@ -31,7 +31,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -435,30 +434,15 @@ public class LogViewerPanel extends javax.swing.JPanel {
     }
 
 	private void scrollToBottom() {
-		boolean atBottom = false;
-		int prevalue = 0;
-		int count = 0;
-		while (!atBottom) {
-			final JScrollBar scrollBar = jScrollPane1.getVerticalScrollBar();
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					scrollBar.setValue(scrollBar.getMaximum());
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				if (logList.getModel().getSize() > 0) {
+					Rectangle rect = logList.getCellBounds(logList.getModel().getSize() - 1, logList.getModel().getSize() - 1);
+					logList.scrollRectToVisible(rect);
 				}
-			});
-			try {
-				Thread.sleep(200);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
 			}
-			if (prevalue != scrollBar.getValue()) {
-				prevalue = scrollBar.getValue();
-			} else if ((prevalue != 0 && count > 3) || (prevalue == 0 && count > 30)) {
-				atBottom = true;
-			} else {
-				count++;
-			}
-		}
+		});
 	}
 	
     private void readLastBytes() {

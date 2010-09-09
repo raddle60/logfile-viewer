@@ -1,6 +1,7 @@
 package com.raddle.log.viewer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,6 +86,7 @@ public class LogFileSizeDialog extends javax.swing.JDialog {
 				viewBtn.setPreferredSize(new java.awt.Dimension(102, 25));
 				viewBtn.setText("\u67e5\u770b");
 				viewBtn.addActionListener(new ActionListener() {
+					@SuppressWarnings("unchecked")
 					public void actionPerformed(ActionEvent evt) {
 						Pattern ipPattern = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d{1,5}");
 						Matcher matcher = ipPattern.matcher(logServerTxt.getText());
@@ -99,6 +101,15 @@ public class LogFileSizeDialog extends javax.swing.JDialog {
 						tableModel.addColumn("服务器名");
 						tableModel.addColumn("文件总大小");
 						tableModel.addColumn("文件总大小可读");
+						//
+						TableRowSorter rowSorter = (TableRowSorter) logSizeTable.getRowSorter();
+						rowSorter.setComparator(2, new Comparator<Long>() {
+							@Override
+							public int compare(Long o1, Long o2) {
+								return o1.compareTo(o2);
+							}
+						});
+						//
 						long allLength = 0;
 						int count = 0;
 						while (matcher.find()) {

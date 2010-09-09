@@ -129,10 +129,25 @@ public class LogFileSizeDialog extends javax.swing.JDialog {
 											e.printStackTrace();
 										}
 									}
-									tableModel.addColumn("服务地址");
-									tableModel.addColumn("服务器名");
-									tableModel.addColumn("文件总大小");
-									tableModel.addColumn("文件总大小可读");
+
+									SwingUtilities.invokeLater(new Runnable() {
+
+										@Override
+										public void run() {
+											// 添加列
+											tableModel.addColumn("服务地址");
+											tableModel.addColumn("服务器名");
+											tableModel.addColumn("文件总大小");
+											tableModel.addColumn("文件总大小可读");
+										}
+									});
+									while (tableModel.getColumnCount() < 4) {
+										try {
+											Thread.sleep(10);
+										} catch (InterruptedException e) {
+											e.printStackTrace();
+										}
+									}
 									//
 									TableRowSorter rowSorter = (TableRowSorter) logSizeTable.getRowSorter();
 									rowSorter.setComparator(2, new Comparator<Long>() {

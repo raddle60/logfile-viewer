@@ -163,7 +163,7 @@ public class LogViewerMain extends javax.swing.JFrame {
                 		jMenuItem1.setText("\u67e5\u770b\u5360\u7528\u7a7a\u95f4");
                 		jMenuItem1.addActionListener(new ActionListener() {
                 			public void actionPerformed(ActionEvent evt) {
-                				LogFileSizeDialog fileSizeView = new LogFileSizeDialog(LogViewerMain.this);
+                				LogFileSizeDialog fileSizeView = new LogFileSizeDialog(null);
                 				fileSizeView.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 				fileSizeView.setModal(false);
                 				fileSizeView.setLocationRelativeTo(LogViewerMain.this);

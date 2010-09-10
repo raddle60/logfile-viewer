@@ -406,7 +406,8 @@ public class LogViewerPanel extends javax.swing.JPanel {
 				m.addElement(s.trim());
 				if (m.getSize() > MAX_LINES) {
 					List<String> rows = new LinkedList<String>();
-					for (int i = MAX_RESERVE_LINES; i < m.getSize(); i++) {
+					int index = m.getSize() - MAX_RESERVE_LINES;
+					for (int i = index; i < m.getSize(); i++) {
 						rows.add(m.getElementAt(i).toString());
 					}
 					m.removeAllElements();
@@ -417,8 +418,8 @@ public class LogViewerPanel extends javax.swing.JPanel {
 						Rectangle rect = logList.getCellBounds(logList.getModel().getSize() - 1, logList.getModel().getSize() - 1);
 						logList.scrollRectToVisible(rect);
 					}
-					previousIndex = previousIndex - MAX_RESERVE_LINES;
-					ppreviousIndex = ppreviousIndex - MAX_RESERVE_LINES;
+					previousIndex = previousIndex - index;
+					ppreviousIndex = ppreviousIndex - index;
 				}
 			}
 		});

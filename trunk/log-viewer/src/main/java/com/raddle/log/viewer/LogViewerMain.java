@@ -144,11 +144,17 @@ public class LogViewerMain extends javax.swing.JFrame {
                                 d.setLocationRelativeTo(LogViewerMain.this);
                                 d.setVisible(true);
                                 if (d.getLogCodes() != null) {
+                                	int count = 0;
                                     for (String logCode : d.getLogCodes()) {
-                                        addNetLogTab(logCode, d.getIp(), d.getPort());
+                                    	if(logCode != null && logCode.length() > 0){
+                                    		addNetLogTab(logCode, d.getIp(), d.getPort());
+                                    		count++;
+                                    	}
                                     }
-                                    jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount() - 1);
-                                    updateWindowsTitle();
+                                    if(count > 0){
+                                    	jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount() - 1);
+                                    	updateWindowsTitle();
+                                    }
                                 }
                                 d.dispose();
                             }

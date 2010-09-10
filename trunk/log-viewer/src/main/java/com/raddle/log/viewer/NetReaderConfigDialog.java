@@ -8,10 +8,13 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.swing.ButtonGroup;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -21,6 +24,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListModel;
@@ -52,6 +56,12 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
     private JTextField portTxt;
     private JComboBox ipCBox;
     private int port;
+    private JRadioButton sizeOrderBtn;
+    private ButtonGroup orderBtnGroup;
+    private JRadioButton nameOrderBtn;
+    private JRadioButton timeOrderBtn;
+    private JRadioButton nonOrderBtn;
+    private JLabel jLabel3;
     private JLabel fileSizeLeb;
     private JButton filterBtn;
     private JCheckBox regexChk;
@@ -84,7 +94,7 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
     private void initGUI() {
         try {
             {
-                this.setSize(600, 400);
+                this.setSize(594, 464);
                 this.setTitle("\u7f51\u7edc\u65e5\u5fd7\u6587\u4ef6");
                 getContentPane().setLayout(null);
                 {
@@ -125,13 +135,9 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
                                 }
                                 r.close();
                                 fileSizeLeb.setText("日志总大小："+ FileSizeUtils.readableSize(allLength));
-                                DefaultComboBoxModel m = (DefaultComboBoxModel) logFileList.getModel();
-                                m.removeAllElements();
-                                for (LogFileWrapper fw : logFiles) {
-                                    m.addElement(fw);
-                                }
                                 ip = ipCBox.getSelectedItem() + "";
                                 port = Integer.parseInt(portTxt.getText());
+                                filterLogFiles();
                             } catch (RuntimeException e) {
                                 e.printStackTrace();
                                 JOptionPane.showMessageDialog(NetReaderConfigDialog.this, "获取日志文件列表失败,"
@@ -143,7 +149,7 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
                 {
                     jScrollPane1 = new JScrollPane();
                     getContentPane().add(jScrollPane1);
-                    jScrollPane1.setBounds(12, 114, 457, 169);
+                    jScrollPane1.setBounds(12, 149, 457, 275);
                     {
                         ListModel logFileListModel = new DefaultComboBoxModel(new String[] { "" });
                         logFileList = new JList();
@@ -256,6 +262,16 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
                 	fileSizeLeb.setText("");
                 	fileSizeLeb.setBounds(298, 10, 226, 15);
                 }
+                {
+                	jLabel3 = new JLabel();
+                	getContentPane().add(jLabel3);
+                	getContentPane().add(getNonOrderBtn());
+                	getContentPane().add(getTimeOrderBtn());
+                	getContentPane().add(getNameOrderBtn());
+                	getContentPane().add(getSizeOrderBtn());
+                	jLabel3.setText("\u6392\u5e8f\uff1a");
+                	jLabel3.setBounds(12, 117, 67, 15);
+                }
             }
             pack();
         } catch (Exception e) {
@@ -276,7 +292,7 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
     }
 
     private void filterLogFiles() {
-        DefaultComboBoxModel m = (DefaultComboBoxModel) logFileList.getModel();
+        final DefaultComboBoxModel m = (DefaultComboBoxModel) logFileList.getModel();
         m.removeAllElements();
         Pattern p = null;
         if (filterTxt.getText().length() > 0) {
@@ -288,30 +304,138 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
             }
         }
         long allLength = 0;
+        final List<LogFileWrapper> fileWrappers = new ArrayList<LogFileWrapper>();
         for (LogFileWrapper fw : logFiles) {
         	String string = fw.toString();
             if (filterTxt.getText().length() > 0) {
                 if (regexChk.isSelected() && p.matcher(string).find()) {
-                    m.addElement(fw);
+                	fileWrappers.add(fw);
                     if(fw.getLogFile().getLength() > 0){
                     	allLength += fw.getLogFile().getLength();
                     }
                 } else if (string.indexOf(filterTxt.getText()) != -1) {
-                    m.addElement(fw);
+                	fileWrappers.add(fw);
                     if(fw.getLogFile().getLength() > 0){
                     	allLength += fw.getLogFile().getLength();
                     }
                 }
             } else {
-                m.addElement(fw);
+            	fileWrappers.add(fw);
                 if(fw.getLogFile().getLength() > 0){
                 	allLength += fw.getLogFile().getLength();
                 }
             }
         }
+        // 排序
+        if(timeOrderBtn.isSelected()){
+        	// 时间
+            Collections.sort(fileWrappers,new Comparator<LogFileWrapper>(){
+    			@Override
+    			public int compare(LogFileWrapper o1, LogFileWrapper o2) {
+    				return new Long(o2.getLogFile().getLastModified()).compareTo(o1.getLogFile().getLastModified());
+    			}
+            });
+        } else if(nameOrderBtn.isSelected()){
+            // 名称
+            Collections.sort(fileWrappers,new Comparator<LogFileWrapper>(){
+    			@Override
+    			public int compare(LogFileWrapper o1, LogFileWrapper o2) {
+    				return o1.getLogFile().getFileId().compareTo(o2.getLogFile().getFileId());
+    			}
+            });
+        } else if(sizeOrderBtn.isSelected()){
+            // 大小
+            Collections.sort(fileWrappers,new Comparator<LogFileWrapper>(){
+    			@Override
+    			public int compare(LogFileWrapper o1, LogFileWrapper o2) {
+    				return new Long(o2.getLogFile().getLength()).compareTo(o1.getLogFile().getLength());
+    			}
+            });
+        }
+        new Thread(){
+			@Override
+			public void run() {
+		        for (final LogFileWrapper fw : fileWrappers) {
+		        	SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							m.addElement(fw);
+						}
+					});
+		        }
+			}
+        }.start();
+
         fileSizeLeb.setText("日志总大小："+ FileSizeUtils.readableSize(allLength));
     }
     
+    private JRadioButton getNonOrderBtn() {
+    	if(nonOrderBtn == null) {
+    		nonOrderBtn = new JRadioButton();
+    		nonOrderBtn.setText("\u65e0");
+    		nonOrderBtn.setBounds(57, 113, 46, 23);
+    		nonOrderBtn.addActionListener(new ActionListener() {
+    			public void actionPerformed(ActionEvent evt) {
+    				filterLogFiles();
+    			}
+    		});
+    		getOrderBtnGroup().add(nonOrderBtn);
+    	}
+    	return nonOrderBtn;
+    }
+    
+    private JRadioButton getTimeOrderBtn() {
+    	if(timeOrderBtn == null) {
+    		timeOrderBtn = new JRadioButton();
+    		timeOrderBtn.setText("\u66f4\u65b0\u65f6\u95f4");
+    		timeOrderBtn.setBounds(124, 113, 77, 23);
+    		timeOrderBtn.addActionListener(new ActionListener() {
+    			public void actionPerformed(ActionEvent evt) {
+    				filterLogFiles();
+    			}
+    		});
+    		getOrderBtnGroup().add(timeOrderBtn);
+    	}
+    	return timeOrderBtn;
+    }
+    
+    private JRadioButton getNameOrderBtn() {
+    	if(nameOrderBtn == null) {
+    		nameOrderBtn = new JRadioButton();
+    		nameOrderBtn.setText("\u540d\u79f0");
+    		nameOrderBtn.setBounds(222, 113, 51, 23);
+    		nameOrderBtn.addActionListener(new ActionListener() {
+    			public void actionPerformed(ActionEvent evt) {
+    				filterLogFiles();
+    			}
+    		});
+    		getOrderBtnGroup().add(nameOrderBtn);
+    	}
+    	return nameOrderBtn;
+    }
+    
+    private ButtonGroup getOrderBtnGroup() {
+    	if(orderBtnGroup == null) {
+    		orderBtnGroup = new ButtonGroup();
+    	}
+    	return orderBtnGroup;
+    }
+    
+    private JRadioButton getSizeOrderBtn() {
+    	if(sizeOrderBtn == null) {
+    		sizeOrderBtn = new JRadioButton();
+    		sizeOrderBtn.setText("\u6587\u4ef6\u5927\u5c0f");
+    		sizeOrderBtn.setBounds(297, 113, 77, 23);
+    		sizeOrderBtn.addActionListener(new ActionListener() {
+    			public void actionPerformed(ActionEvent evt) {
+    				filterLogFiles();
+    			}
+    		});
+    		getOrderBtnGroup().add(sizeOrderBtn);
+    	}
+    	return sizeOrderBtn;
+    }
+
 	private class LogFileWrapper {
 		private NetLogFile logFile;
 
@@ -325,7 +449,7 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
 
 		@Override
 		public String toString() {
-			return logFile.getFileId() + "[" + FileSizeUtils.readableSize(logFile.getLength()) + "]";
+			return logFile.getFileId() + "    [" + FileSizeUtils.readableSize(logFile.getLength()) + "]";
 		}
 	}
 

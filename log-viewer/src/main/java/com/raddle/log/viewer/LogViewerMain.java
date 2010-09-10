@@ -122,9 +122,11 @@ public class LogViewerMain extends javax.swing.JFrame {
                                 if (result == JFileChooser.APPROVE_OPTION) {
                                     String encoding = JOptionPane.showInputDialog("请输入文件编码格式", System
                                             .getProperty("file.encoding"));
-                                    addFileLogTab(f.getSelectedFile(), encoding);
-									jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount() - 1);
-									updateWindowsTitle();
+                                    if(encoding != null && encoding.length() > 0){
+                                        addFileLogTab(f.getSelectedFile(), encoding);
+    									jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount() - 1);
+    									updateWindowsTitle();
+                                    }
                                 }
                             }
                         });

@@ -17,6 +17,8 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -75,6 +77,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
     private int previousIndex = -1;
     private int ppreviousIndex = -1;
     private final static int MAX_LINES = 2000;
+    private final static int MAX_RESERVE_LINES = 300;
     private LogChangedListener logChangedListener;
     private int refreshSecend = 5;
     //////
@@ -402,9 +405,20 @@ public class LogViewerPanel extends javax.swing.JPanel {
 				DefaultComboBoxModel m = (DefaultComboBoxModel) logList.getModel();
 				m.addElement(s.trim());
 				if (m.getSize() > MAX_LINES) {
-					m.removeElementAt(0);
-					ppreviousIndex--;
-					previousIndex--;
+					List<String> rows = new LinkedList<String>();
+					for (int i = MAX_RESERVE_LINES; i < m.getSize(); i++) {
+						rows.add(m.getElementAt(i).toString());
+					}
+					m.removeAllElements();
+					for (String row : rows) {
+						m.addElement(row);
+					}
+					if (logList.getModel().getSize() > 0) {
+						Rectangle rect = logList.getCellBounds(logList.getModel().getSize() - 1, logList.getModel().getSize() - 1);
+						logList.scrollRectToVisible(rect);
+					}
+					previousIndex = previousIndex - MAX_RESERVE_LINES;
+					ppreviousIndex = ppreviousIndex - MAX_RESERVE_LINES;
 				}
 			}
 		});

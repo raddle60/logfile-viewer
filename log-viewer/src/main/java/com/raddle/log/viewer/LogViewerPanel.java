@@ -406,7 +406,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
 				m.addElement(s.trim());
 				if (m.getSize() > MAX_LINES) {
 					List<String> rows = new LinkedList<String>();
-					int index = m.getSize() - MAX_RESERVE_LINES;
+					int index = m.getSize() - MAX_RESERVE_LINES - 1;
 					for (int i = index; i < m.getSize(); i++) {
 						rows.add(m.getElementAt(i).toString());
 					}

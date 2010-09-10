@@ -121,28 +121,34 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
                     connectBtn.setBounds(298, 36, 137, 22);
                     connectBtn.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent evt) {
-                            try {
-                                NetLogReader r = NetLogReader.connectServer("", ipCBox.getSelectedItem() + "", Integer
-                                        .parseInt(portTxt.getText()));
-                                logFiles.clear();
-                                NetLogFile[] ss = r.listFile();
-                                long allLength = 0;
-                                for (NetLogFile s : ss) {
-                                    logFiles.add(new LogFileWrapper(s));
-                                    if(s.getLength() > 0){
-                                    	allLength += s.getLength();
-                                    }
-                                }
-                                r.close();
-                                fileSizeLeb.setText("日志总大小："+ FileSizeUtils.readableSize(allLength));
-                                ip = ipCBox.getSelectedItem() + "";
-                                port = Integer.parseInt(portTxt.getText());
-                                filterLogFiles();
-                            } catch (RuntimeException e) {
-                                e.printStackTrace();
-                                JOptionPane.showMessageDialog(NetReaderConfigDialog.this, "获取日志文件列表失败,"
-                                        + e.getMessage());
-                            }
+                        	new Thread(new Runnable() {
+								@Override
+								public void run() {
+									try {
+										connectBtn.setEnabled(false);
+		                                NetLogReader r = NetLogReader.connectServer("", ipCBox.getSelectedItem() + "", Integer.parseInt(portTxt.getText()));
+		                                logFiles.clear();
+		                                NetLogFile[] ss = r.listFile();
+		                                long allLength = 0;
+		                                for (NetLogFile s : ss) {
+		                                    logFiles.add(new LogFileWrapper(s));
+		                                    if(s.getLength() > 0){
+		                                    	allLength += s.getLength();
+		                                    }
+		                                }
+		                                r.close();
+		                                fileSizeLeb.setText("日志总大小："+ FileSizeUtils.readableSize(allLength));
+		                                ip = ipCBox.getSelectedItem() + "";
+		                                port = Integer.parseInt(portTxt.getText());
+		                                filterLogFiles();
+		                            } catch (RuntimeException e) {
+		                            	connectBtn.setEnabled(true);
+		                                e.printStackTrace();
+		                                JOptionPane.showMessageDialog(NetReaderConfigDialog.this, "获取日志文件列表失败,"
+		                                        + e.getMessage());
+		                            }
+								}
+							}).start();
                         }
                     });
                 }
@@ -355,6 +361,7 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
         new Thread(){
 			@Override
 			public void run() {
+				// 显示日志文件列表
 		        for (final LogFileWrapper fw : fileWrappers) {
 		        	SwingUtilities.invokeLater(new Runnable() {
 						@Override
@@ -363,6 +370,13 @@ public class NetReaderConfigDialog extends javax.swing.JDialog {
 						}
 					});
 		        }
+		        // 启动链接按钮
+	        	SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						connectBtn.setEnabled(true);
+					}
+				});
 			}
         }.start();
 

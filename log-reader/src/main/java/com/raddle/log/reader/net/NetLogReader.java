@@ -1,20 +1,17 @@
 package com.raddle.log.reader.net;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.UUID;
 
 import com.raddle.log.reader.LogReader;
+import com.raddle.log.reader.StreamSaver;
 
 public class NetLogReader implements LogReader {
 
-    private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
     private String           fileId;
     private String           ip;
     private int              port;
@@ -114,7 +111,7 @@ public class NetLogReader implements LogReader {
     }
 
     @Override
-    public void saveAs(final File file) {
+    public void saveAs(final StreamSaver saver) {
         doInSocket(new SocketCallback() {
 
             @Override
@@ -128,15 +125,12 @@ public class NetLogReader implements LogReader {
                 out.writeObject(cmd);
                 //获得结果
                 InputStream in = socket.getInputStream();
-                OutputStream os = new FileOutputStream(file);
-                byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-                int n = 0;
-                while (-1 != (n = in.read(buffer))) {
-                    os.write(buffer, 0, n);
-                }
-                os.close();
-                in.close();
-                out.close();
+				try {
+					saver.saveStream(in);
+				} finally {
+					in.close();
+					out.close();
+				}
                 return null;
             }
         });

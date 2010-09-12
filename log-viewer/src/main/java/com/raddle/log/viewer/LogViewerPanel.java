@@ -41,6 +41,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.cloudgarden.layout.AnchorConstraint;
 import com.cloudgarden.layout.AnchorLayout;
 import com.raddle.log.reader.LogReader;
+import com.raddle.log.reader.saver.FileStreamSaver;
 import com.raddle.log.viewer.listener.LogChangedListener;
 import com.raddle.log.viewer.utils.FileSizeUtils;
 
@@ -188,7 +189,7 @@ public class LogViewerPanel extends javax.swing.JPanel {
                             if (!sf.getName().endsWith(".txt") && !sf.getName().endsWith(".log")) {
                                 sf = new File(sf.getParentFile(), sf.getName() + ".log");
                             }
-                            logReader.saveAs(sf);
+                            logReader.saveAs(new FileStreamSaver(sf));
                         }
                     }
                 });

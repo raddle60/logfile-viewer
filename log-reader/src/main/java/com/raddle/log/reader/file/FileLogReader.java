@@ -3,14 +3,14 @@ package com.raddle.log.reader.file;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.raddle.log.reader.LogReader;
+import com.raddle.log.reader.StreamSaver;
 
 public class FileLogReader implements LogReader {
 
@@ -52,19 +52,15 @@ public class FileLogReader implements LogReader {
     }
 
     @Override
-    public void saveAs(File file) {
-        try {
-            FileInputStream fis = new FileInputStream(logFile);
-            OutputStream os = new FileOutputStream(file);
-            byte[] buffer = new byte[1024 * 4];
-            int n = 0;
-            while (-1 != (n = fis.read(buffer))) {
-                os.write(buffer, 0, n);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("日志文件另存为失败", e);
-        }
-    }
+	public void saveAs(StreamSaver saver) {
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(logFile);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException("文件另存为失败", e);
+		}
+		saver.saveStream(fis);
+	}
 
     @Override
     public void close() {

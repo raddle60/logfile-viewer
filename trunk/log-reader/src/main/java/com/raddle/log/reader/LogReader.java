@@ -1,7 +1,5 @@
 package com.raddle.log.reader;
 
-import java.io.File;
-
 public interface LogReader {
 	/**
 	 * 返回日志文件当前的大小
@@ -37,6 +35,6 @@ public interface LogReader {
 	 * 
 	 * @param file
 	 */
-	public void saveAs(File file);
+	public void saveAs(StreamSaver saver);
 
 }

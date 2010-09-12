@@ -162,6 +162,83 @@ public class LogViewerMain extends javax.swing.JFrame {
                     }
                 }
                 {
+                	jMenu1 = new JMenu();
+                	jMenuBar1.add(jMenu1);
+                	jMenu1.setText("\u6807\u7b7e");
+                	{
+                		savnOpenTabMenuItem = new JMenuItem();
+                		jMenu1.add(savnOpenTabMenuItem);
+                		savnOpenTabMenuItem.setText("\u4fdd\u5b58\u6807\u7b7e");
+                		savnOpenTabMenuItem.addActionListener(new ActionListener() {
+                			public void actionPerformed(ActionEvent evt) {
+                				String value = JOptionPane.showInputDialog("请输入保存的标签组名称");
+                				if(value != null && value.trim().length() > 0){
+                					LogConfigUtils.saveTabGroup(value.trim(), jTabbedPane1);
+                				}
+                			}
+                		});
+                	}
+                	{
+                		openSavedTabMenuItem = new JMenuItem();
+                		jMenu1.add(openSavedTabMenuItem);
+                		openSavedTabMenuItem.setText("\u6253\u5f00\u6807\u7b7e");
+                		openSavedTabMenuItem.addActionListener(new ActionListener() {
+                			public void actionPerformed(ActionEvent evt) {
+                				OpenSavedTabDialog d = new OpenSavedTabDialog(LogViewerMain.this);
+                				d.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+                				d.setModal(true);
+                				d.setLocationRelativeTo(LogViewerMain.this);
+                				d.setVisible(true);
+                				if(d.isOpen()){
+                					for (String logTab : d.getTabs()) {
+                						if(logTab.startsWith("file:")){
+                							String value = logTab.substring("file:".length());
+                							String[] ss = value.split(":");
+                							addFileLogTab(new File(ss[0]), ss[1]);
+                						}
+                						if(logTab.startsWith("net:")){
+                							String value = logTab.substring("net:".length());
+                							String[] ss = value.split(":");
+                							String logCode = ss[2];
+                							if(ss.length == 4){
+                								logCode = logCode + ":" + ss[3];
+                							}
+                							addNetLogTab(logCode, ss[0], Integer.parseInt(ss[1]));
+                						}
+                					}
+                				}
+                				d.dispose();
+                			}
+                		});
+                	}
+                	{
+                		manageTabMenuItem = new JMenuItem();
+                		jMenu1.add(manageTabMenuItem);
+                		manageTabMenuItem.setText("\u7ba1\u7406\u6807\u7b7e");
+                		manageTabMenuItem.addActionListener(new ActionListener() {
+                			public void actionPerformed(ActionEvent evt) {
+                				OpenSavedTabDialog d = new OpenSavedTabDialog(LogViewerMain.this);
+                				d.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+                				d.setModal(true);
+                				d.setLocationRelativeTo(LogViewerMain.this);
+                				d.setVisible(true);
+                				d.dispose();
+                			}
+                		});
+                	}
+                	{
+                		closeAllMenuItem = new JMenuItem();
+                		jMenu1.add(closeAllMenuItem);
+                		closeAllMenuItem.setText("\u5168\u90e8\u5173\u95ed");
+                		closeAllMenuItem.setBounds(-67, 73, 90, 23);
+                		closeAllMenuItem.addActionListener(new ActionListener() {
+                			public void actionPerformed(ActionEvent evt) {
+                				closeAllTab();
+                			}
+                		});
+                	}
+                }
+                {
                 	jMenu2 = new JMenu();
                 	jMenuBar1.add(jMenu2);
                 	jMenu2.setText("\u65e5\u5fd7\u7a7a\u95f4");
@@ -176,83 +253,6 @@ public class LogViewerMain extends javax.swing.JFrame {
                 				fileSizeView.setModal(false);
                 				fileSizeView.setLocationRelativeTo(LogViewerMain.this);
                 				fileSizeView.setVisible(true);
-                			}
-                		});
-                	}
-                }
-                {
-                	jMenu1 = new JMenu();
-                	jMenuBar1.add(jMenu1);
-                	jMenu1.setText("\u6807\u7b7e");
-                	{
-                		savnOpenTabMenuItem = new JMenuItem();
-                		jMenu1.add(savnOpenTabMenuItem);
-                		savnOpenTabMenuItem.setText("\u4fdd\u5b58\u6253\u5f00\u7684\u6807\u7b7e");
-                		savnOpenTabMenuItem.addActionListener(new ActionListener() {
-                			public void actionPerformed(ActionEvent evt) {
-                				String value = JOptionPane.showInputDialog("请输入保存的标签组名称");
-                				if(value != null && value.trim().length() > 0){
-                					LogConfigUtils.saveTabGroup(value.trim(), jTabbedPane1);
-                				}
-                			}
-                		});
-                	}
-                	{
-                		openSavedTabMenuItem = new JMenuItem();
-                		jMenu1.add(openSavedTabMenuItem);
-                		openSavedTabMenuItem.setText("\u6253\u5f00\u4fdd\u5b58\u7684\u6807\u7b7e");
-                		openSavedTabMenuItem.addActionListener(new ActionListener() {
-                			public void actionPerformed(ActionEvent evt) {
-                				OpenSavedTabDialog d = new OpenSavedTabDialog(LogViewerMain.this);
-                				d.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-                                d.setModal(true);
-                                d.setLocationRelativeTo(LogViewerMain.this);
-                                d.setVisible(true);
-                                if(d.isOpen()){
-                                	for (String logTab : d.getTabs()) {
-										if(logTab.startsWith("file:")){
-											String value = logTab.substring("file:".length());
-											String[] ss = value.split(":");
-											addFileLogTab(new File(ss[0]), ss[1]);
-										}
-										if(logTab.startsWith("net:")){
-											String value = logTab.substring("net:".length());
-											String[] ss = value.split(":");
-											String logCode = ss[2];
-											if(ss.length == 4){
-												logCode = logCode + ":" + ss[3];
-											}
-											addNetLogTab(logCode, ss[0], Integer.parseInt(ss[1]));
-										}
-									}
-                                }
-                                d.dispose();
-                			}
-                		});
-                	}
-                	{
-                		manageTabMenuItem = new JMenuItem();
-                		jMenu1.add(manageTabMenuItem);
-                		manageTabMenuItem.setText("\u7ba1\u7406\u6807\u7b7e");
-                		manageTabMenuItem.addActionListener(new ActionListener() {
-                			public void actionPerformed(ActionEvent evt) {
-                				OpenSavedTabDialog d = new OpenSavedTabDialog(LogViewerMain.this);
-                				d.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-                                d.setModal(true);
-                                d.setLocationRelativeTo(LogViewerMain.this);
-                                d.setVisible(true);
-                                d.dispose();
-                			}
-                		});
-                	}
-                	{
-                		closeAllMenuItem = new JMenuItem();
-                		jMenu1.add(closeAllMenuItem);
-                		closeAllMenuItem.setText("\u5168\u90e8\u5173\u95ed");
-                		closeAllMenuItem.setBounds(-67, 73, 90, 23);
-                		closeAllMenuItem.addActionListener(new ActionListener() {
-                			public void actionPerformed(ActionEvent evt) {
-                				closeAllTab();
                 			}
                 		});
                 	}

@@ -30,6 +30,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -41,7 +42,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.cloudgarden.layout.AnchorConstraint;
 import com.cloudgarden.layout.AnchorLayout;
 import com.raddle.log.reader.LogReader;
-import com.raddle.log.reader.saver.FileStreamSaver;
 import com.raddle.log.viewer.listener.LogChangedListener;
 import com.raddle.log.viewer.utils.FileSizeUtils;
 
@@ -186,10 +186,28 @@ public class LogViewerPanel extends javax.swing.JPanel {
                         int result = f.showSaveDialog(LogViewerPanel.this);
                         if (result == JFileChooser.APPROVE_OPTION) {
                             File sf = f.getSelectedFile();
+                            if(sf.exists()){
+                            	int overwrite = JOptionPane.showConfirmDialog(LogViewerPanel.this, "文件["+sf.getAbsolutePath()+"]已存在，是否覆盖");
+                            	if(overwrite != JOptionPane.OK_OPTION){
+                            		return;
+                            	}
+                            }
                             if (!sf.getName().endsWith(".txt") && !sf.getName().endsWith(".log")) {
                                 sf = new File(sf.getParentFile(), sf.getName() + ".log");
                             }
-                            logReader.saveAs(new FileStreamSaver(sf));
+                            SaveProgressDialog sp = new SaveProgressDialog(null);
+                            sp.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                            sp.setModal(false);
+                            sp.setLocationRelativeTo(LogViewerPanel.this);
+                            //
+                            sp.setLogReader(logReader);
+                            sp.setLogCode(logCode);
+                            sp.setLogFile(logFile);
+                            sp.setSaveTo(sf);
+                            sp.setLogServerIp(logServerIp);
+                            sp.setLogServerPort(logServerPort);
+                            //
+                            sp.startSave();
                         }
                     }
                 });

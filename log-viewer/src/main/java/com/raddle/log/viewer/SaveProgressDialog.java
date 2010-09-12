@@ -154,7 +154,7 @@ public class SaveProgressDialog extends javax.swing.JDialog {
 							progressBar.setMaximum(toKByte(fileSize));
 							progressBar.setStringPainted(true);
 							OutputStream os = new FileOutputStream(saveTo);
-							byte[] buffer = new byte[1024];
+							byte[] buffer = new byte[4 * 1024];
 							int n = 0;
 							long writedBytes = 0;
 							long start = System.currentTimeMillis();

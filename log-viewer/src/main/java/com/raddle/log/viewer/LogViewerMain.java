@@ -228,7 +228,6 @@ public class LogViewerMain extends javax.swing.JFrame {
                 		closeAllMenuItem.setBounds(-67, 73, 90, 23);
                 		closeAllMenuItem.addActionListener(new ActionListener() {
                 			public void actionPerformed(ActionEvent evt) {
-                				closeReader(false);
                 				closeAllTab();
                 			}
                 		});
@@ -266,7 +265,6 @@ public class LogViewerMain extends javax.swing.JFrame {
             }
             this.addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {
-                	closeReader(true);
                     closeAllTab();
                     System.exit(0); //关闭
                 }
@@ -295,34 +293,38 @@ public class LogViewerMain extends javax.swing.JFrame {
 
 	private void closeAllTab() {
 		int count = jTabbedPane1.getTabCount();
-		while (count > 0) {
-			jTabbedPane1.remove(count - 1);
-			count = jTabbedPane1.getTabCount();
-		}
-	}
-
-	private void closeReader(final boolean sync) {
-		// 关闭tab,关闭网络会话
-		int count = jTabbedPane1.getTabCount();
-		for (int i = 0; i < count; i++) {
-			Component c = jTabbedPane1.getComponentAt(i);
-			if (c instanceof LogViewerPanel) {
-				final LogViewerPanel p = (LogViewerPanel) c;
-				p.stopTimer();
-				if (!sync) {
-					new Thread() {
+		if (count > 0) {
+			// 关闭连接
+			Thread[] threads = new Thread[count];
+			for (int i = 0; i < count; i++) {
+				Component c = jTabbedPane1.getComponentAt(i);
+				if (c instanceof LogViewerPanel) {
+					final LogViewerPanel p = (LogViewerPanel) c;
+					p.stopTimer();
+					threads[i] = new Thread() {
 						@Override
 						public void run() {
 							p.getLogReader().close();
 						}
 					};
-				} else {
-					p.getLogReader().close();
+					threads[i].start();
 				}
+			}
+			for (int i = 0; i < count; i++) {
+				try {
+					threads[i].join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			// 关闭tab
+			while (count > 0) {
+				jTabbedPane1.remove(count - 1);
+				count = jTabbedPane1.getTabCount();
 			}
 		}
 	}
-	
+
 	private void addNetLogTab(final String logCode, final String ip, final int port) {
 		new Thread(){
 

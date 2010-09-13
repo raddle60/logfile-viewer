@@ -22,6 +22,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.raddle.log.reader.LogReader;
 import com.raddle.log.reader.file.FileLogReader;
 import com.raddle.log.reader.net.NetLogReader;
 import com.raddle.log.viewer.utils.LogConfigUtils;
@@ -144,16 +145,10 @@ public class LogViewerMain extends javax.swing.JFrame {
                                 d.setLocationRelativeTo(LogViewerMain.this);
                                 d.setVisible(true);
                                 if (d.getLogCodes() != null) {
-                                	int count = 0;
                                     for (String logCode : d.getLogCodes()) {
                                     	if(logCode != null && logCode.length() > 0){
                                     		addNetLogTab(logCode, d.getIp(), d.getPort());
-                                    		count++;
                                     	}
-                                    }
-                                    if(count > 0){
-                                    	jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount() - 1);
-                                    	updateWindowsTitle();
                                     }
                                 }
                                 d.dispose();
@@ -317,29 +312,37 @@ public class LogViewerMain extends javax.swing.JFrame {
 		}
 	}
 
-	private void addNetLogTab(String logCode, String ip, int port) {
-		try {
-			LogViewerPanel jPanel1 = new LogViewerPanel(NetLogReader.connectServer(logCode, ip, port));
-			jPanel1.setLogServerIp(ip);
-			jPanel1.setLogServerPort(port);
-			jPanel1.setLogCode(logCode);
-			jTabbedPane1.addTab(null, jPanel1);
-			TabTitlePanel tabTitlePanel = new TabTitlePanel(logCode, jPanel1, jTabbedPane1);
-			tabTitlePanel.setIp(ip);
-			tabTitlePanel.setPort(port);
-			tabTitlePanel.init();
-			jPanel1.setLogChangedListener(tabTitlePanel);
-			jTabbedPane1.setTabComponentAt(jTabbedPane1.indexOfComponent(jPanel1), tabTitlePanel);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			JOptionPane.showMessageDialog(LogViewerMain.this, "打开网络日志文件[" + logCode + ":" + ip + ":" + port + "]失败");
-		}
-		try {
-		    // 延迟一下
-		    Thread.sleep(200);
-		} catch (InterruptedException e) {
-		    e.printStackTrace();
-		}
+	private void addNetLogTab(final String logCode, final String ip, final int port) {
+		new Thread(){
+
+			@Override
+			public void run() {
+				try {
+					final LogReader reader = NetLogReader.connectServer(logCode, ip, port);
+					// 构造函数里访问了网络，放到invoke外面
+					final LogViewerPanel jPanel1 = new LogViewerPanel(reader);
+					jPanel1.setLogServerIp(ip);
+					jPanel1.setLogServerPort(port);
+					jPanel1.setLogCode(logCode);
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							jTabbedPane1.addTab(null, jPanel1);
+							TabTitlePanel tabTitlePanel = new TabTitlePanel(logCode, jPanel1, jTabbedPane1);
+							tabTitlePanel.setIp(ip);
+							tabTitlePanel.setPort(port);
+							tabTitlePanel.init();
+							jPanel1.setLogChangedListener(tabTitlePanel);
+							jTabbedPane1.setTabComponentAt(jTabbedPane1.indexOfComponent(jPanel1), tabTitlePanel);
+							updateWindowsTitle();
+						}
+					});
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(LogViewerMain.this, "打开网络日志文件[" + logCode + ":" + ip + ":" + port + "]失败");
+				}
+			}
+		}.start();
 	}
 
 	private void addFileLogTab(File file, String encoding) {

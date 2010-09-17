@@ -136,16 +136,20 @@ public class LogFileSizeDialog extends javax.swing.JDialog {
 											length += netLogFile.getLength();
 										}
 										if (logFiles.length == 0) {
-											addRow(tableModel, new Object[] { ip, "unknown", "unknown", "unknown" });
+											addRow(tableModel, new Object[] { ip, "unknown", 0L, "unknown" });
 										} else {
 											addRow(tableModel, new Object[] { ip, logFiles[0].getServerName(), length, FileSizeUtils.readableSize(length)});
 										}
 										allLength += length;
 									} catch(Exception e){
 										e.printStackTrace();
-										addRow(tableModel, new Object[] { ip, e.getMessage(), "unknown", "unknown" });
+										addRow(tableModel, new Object[] { ip, e.getMessage(), 0L, "unknown" });
 									} finally {
-										netLogReader.close();
+										try{
+											netLogReader.close();
+										} catch(Exception e){
+											e.printStackTrace();
+										}
 									}
 									count++;
 								}
